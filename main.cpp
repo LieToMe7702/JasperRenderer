@@ -1,17 +1,13 @@
-#include "windows_painter.h"
-#include "renderer.h"
+#include "tgaimage.h"
+const TGAColor white = TGAColor(255, 255, 255, 255);
+const TGAColor red = TGAColor(255, 0, 0, 255);
+
 
 int main(void)
 {
-	WindowsPainter painter;
-	Renderer renderer;
-	auto func = [&renderer] { renderer.Update(); };
-	if (!painter.screen_init(800, 600))
-	{
-		return 0;
-	}
-	renderer.Init(800, 600, painter.screen_fb);
-	painter.update(func);
-
+	TGAImage image(100, 100, TGAImage::RGB);
+	image.set(52, 41, red);
+	image.flip_vertically();
+	image.write_tga_file("output.tga");
 	return 0;
 }
