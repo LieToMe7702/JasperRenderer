@@ -12,25 +12,34 @@ Model::Model(const std::string filename)
         std::getline(in, line);
         std::istringstream iss(line.c_str());
         char trash;
-        if (!line.compare(0, 2, "v ")) {
+        if (line.compare(0, 2, "v ") == 0) {
             iss >> trash;
             vec3 v;
-            for (int i = 0; i < 3; i++) iss >> v[i];
+            for (int i = 0; i < 3; i++)
+            {
+	            iss >> v[i];
+            }
             verts.push_back(v);
         }
-        else if (!line.compare(0, 3, "vn ")) {
+        else if (line.compare(0, 3, "vn ") == 0) {
             iss >> trash >> trash;
             vec3 n;
-            for (int i = 0; i < 3; i++) iss >> n[i];
+            for (int i = 0; i < 3; i++)
+            {
+	            iss >> n[i];
+            }
             norms.push_back(n.normalize());
         }
-        else if (!line.compare(0, 3, "vt ")) {
+        else if (line.compare(0, 3, "vt ") == 0) {
             iss >> trash >> trash;
             vec2 uv;
-            for (int i = 0; i < 2; i++) iss >> uv[i];
+            for (int i = 0; i < 2; i++)
+            {
+	            iss >> uv[i];
+            }
             tex_coord.emplace_back(uv.x, 1 - uv.y);
         }
-        else if (!line.compare(0, 2, "f ")) {
+        else if (line.compare(0, 2, "f ") == 0) {
             int f, t, n;
             iss >> trash;
             int cnt = 0;
