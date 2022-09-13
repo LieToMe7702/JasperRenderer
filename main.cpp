@@ -7,10 +7,18 @@ const TGAColor red = TGAColor(255, 0, 0, 255);
 
 int main(void)
 {
-	auto width = 1024;
-	auto height = 768;
+	auto width = 800;
+	auto height = 800;
 	TGAImage image(width, height, TGAImage::RGB);
-	Model model("obj/african_head/african_head.obj");
+	std::string path = "obj/african_head/african_head.obj";
+	std::string name = path;
+	auto index = path.find_last_of("/");
+	if(index > 0)
+	{
+		name = path.substr(index + 1);
+	}
+	name += std::to_string(width) + "x" + std::to_string(height) + ".tga";
+	Model model(path);
 	for(int i = 0; i < model.nfaces();i++)
 	{
 		for(int j = 0 ; j < 3; j++)
@@ -28,6 +36,6 @@ int main(void)
 	//line2(555, 375, 15, 15, image, red);
 	//line(555, 375, 15, 15, image, white);
 	//image.flip_vertically();
-	image.write_tga_file("output.tga");
+	image.write_tga_file(name);
 	return 0;
 }
