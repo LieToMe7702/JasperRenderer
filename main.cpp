@@ -5,13 +5,10 @@ const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red = TGAColor(255, 0, 0, 255);
 
 
-int main(void)
+void DrawModel(int width, int height, TGAImage& image, std::string& name)
 {
-	auto width = 800;
-	auto height = 800;
-	TGAImage image(width, height, TGAImage::RGB);
 	std::string path = "obj/african_head/african_head.obj";
-	std::string name = path;
+	name = path;
 	auto index = path.find_last_of("/");
 	if(index > 0)
 	{
@@ -29,9 +26,27 @@ int main(void)
 			int y0 = (v0.y + 1.0) * height / 2;
 			int x1 = (v1.x + 1.0) * width / 2;
 			int y1 = (v1.y + 1.0) * height / 2;
-			line(x0, y0, x1, y1, image, white);
+			line2(x0, y0, x1, y1, image, white);
 		}
 	}
+}
+
+void DrawTriangle(TGAImage& image, const TGAColor& color)
+{
+	vec2 v1(100, 200);
+	vec2 v2(200, 300);
+	vec2 v3(400, 600);
+	triangle(v1, v2, v3, image, color);
+}
+
+int main(void)
+{
+	auto width = 1000;
+	auto height = 1000;
+	TGAImage image(width, height, TGAImage::RGB);
+	std::string name = "output.tga";
+	//DrawModel(width, height, image, name);
+	DrawTriangle(image, red);
 	//line(702, 666, 10, 20, image,white);
 	//line2(555, 375, 15, 15, image, red);
 	//line(555, 375, 15, 15, image, white);
