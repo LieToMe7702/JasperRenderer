@@ -59,7 +59,40 @@ void line(vec2 v1, vec2 v2, TGAImage& image, const TGAColor& color)
 	line2(v1.x, v1.y, v2.x, v2.y, image, color);
 }
 
-void triangle(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor& color)
+vec3 barycentric(const vec2 *points, const vec2& p)
+{
+	vec3 vec_x( points[2][0] - points[0][0], points[1][0] - points[0][0], points[0][0] - p[0] );
+	vec3 vec_y( points[2][1] - points[0][1], points[1][1] - points[0][1], points[0][1] - p[1] );
+	vec3 cross_vec = cross(vec_x, vec_y);
+	if (std::abs(cross_vec.z) < 1) return {- 1, 1, 1};
+	return vec3{ 1.0f - (cross_vec.x + cross_vec.y) / cross_vec.z,cross_vec.x / cross_vec.z,cross_vec.y / cross_vec.z };
+}
+
+void triangle_barycentric(vec2 *points, TGAImage& image, const TGAColor& color)
+{
+	vec2 box_min( image.width() - 1,image.height() - 1 );
+	vec2 box_max( 0,0 );
+	for(int i = 0 ;i < 3; i++)
+	{
+		box_min.x = std::min(box_min.x, points[i].x);
+		box_min.y = std::min(box_min.y, points[i].y);
+
+		box_max.x = std::max(box_max.x, points[i].x);
+		box_max.y = std::max(box_max.y, points[i].y);
+	}
+	vec2 p;
+	for(p.x = box_min.x;p.x <= box_max.x; p.x++)
+	{
+		for (p.y = box_min.y; p.y <= box_max.y;p.y++)
+		{
+			auto res = barycentric(points, p);
+			if(res.x < 0 || res.y < 0 || res.z < 0) continue;
+			image.set(p.x, p.y, color);
+		}
+	}
+}
+
+void triangle_orig(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor& color)
 {
 	int y0 = t0.y;
 	int y1 = t1.y;
@@ -68,7 +101,7 @@ void triangle(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor& color)
 	if (y0 > y2) std::swap(y0, y2);
 	if (y1 > y2) std::swap(y1, y2);
 
-	if(y0 == y1 == y2)
+	if (y0 == y1 == y2)
 	{
 		std::cerr << "Error: the triangle height is error" << std::endl;
 		return;
@@ -76,13 +109,13 @@ void triangle(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor& color)
 	auto total_height = y2 - y0;
 	auto segmeng_height = y1 - y0;
 
-	for(auto y = y0; y < y1;y++)
+	for (auto y = y0; y < y1; y++)
 	{
-		auto a = total_height <= 0 ? 0: (y - t0.y) / total_height;
-		auto b = segmeng_height <= 0 ? 0 :(y - t0.y) / segmeng_height;
+		auto a = total_height <= 0 ? 0 : (y - t0.y) / total_height;
+		auto b = segmeng_height <= 0 ? 0 : (y - t0.y) / segmeng_height;
 		auto A = t0 + (t2 - t0) * a;
 		auto B = t0 + (t1 - t0) * b;
-		line2(A.x, A.y, B.x, B.y, image,color);
+		line2(A.x, A.y, B.x, B.y, image, color);
 	}
 	segmeng_height = y2 - y1;
 
@@ -94,7 +127,13 @@ void triangle(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor& color)
 		auto B = t1 + (t2 - t1) * b;
 		line2(A.x, A.y, B.x, B.y, image, color);
 	}
+}
 
+
+void triangle(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor& color)
+{
+	vec2 points[3]{ t0,t1,t2 };
+	triangle_barycentric(points, image, color);
 }
 
 void triangle_hollow(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor& color)
@@ -106,3 +145,5 @@ void triangle_hollow(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor&
 	line(t1, t2, image, color);
 	line(t2, t0, image, color);
 }
+
+

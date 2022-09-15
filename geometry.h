@@ -14,54 +14,81 @@ template<int n> struct vec {
 
 template<int n> double operator*(const vec<n>& lhs, const vec<n>& rhs) {
     double ret = 0;
-    for (int i = n; i--; ret += lhs[i] * rhs[i]);
+    for(int i = 0 ; i < n;i++)
+    {
+        ret += lhs[i] * rhs[i];
+    }
     return ret;
 }
 
 template<int n> vec<n> operator+(const vec<n>& lhs, const vec<n>& rhs) {
     vec<n> ret = lhs;
-    for (int i = n; i--; ret[i] += rhs[i]);
+    for (int i = 0; i < n; i++)
+    {
+        ret[i] += rhs[i];
+    }
     return ret;
 }
 
 template<int n> vec<n> operator-(const vec<n>& lhs, const vec<n>& rhs) {
     vec<n> ret = lhs;
-    for (int i = n; i--; ret[i] -= rhs[i]);
+    for (int i = 0; i < n; i++)
+    {
+        ret[i] -= rhs[i];
+    }
     return ret;
 }
 
 template<int n> vec<n> operator*(const double& rhs, const vec<n>& lhs) {
     vec<n> ret = lhs;
-    for (int i = n; i--; ret[i] *= rhs);
+    for (int i = 0; i < n; i++)
+    {
+        ret[i] *= rhs;
+    }
     return ret;
 }
 
 template<int n> vec<n> operator*(const vec<n>& lhs, const double& rhs) {
     vec<n> ret = lhs;
-    for (int i = n; i--; ret[i] *= rhs);
+    for (int i = 0; i < n; i++)
+    {
+        ret[i] *= rhs;
+    }
     return ret;
 }
 
 template<int n> vec<n> operator/(const vec<n>& lhs, const double& rhs) {
-    vec<n> ret = lhs;
-    for (int i = n; i--; ret[i] /= rhs);
+	vec<n> ret = lhs;
+    for (int i = 0; i < n; i++)
+    {
+        ret[i] /= rhs;
+    }
     return ret;
 }
 
 template<int n1, int n2> vec<n1> embed(const vec<n2>& v, double fill = 1) {
     vec<n1> ret;
-    for (int i = n1; i--; ret[i] = (i < n2 ? v[i] : fill));
+    for (int i = 0; i < n1; i++)
+    {
+        ret[i] = (i < n2 ? v[i] : fill);
+    }
     return ret;
 }
 
 template<int n1, int n2> vec<n1> proj(const vec<n2>& v) {
     vec<n1> ret;
-    for (int i = n1; i--; ret[i] = v[i]);
+    for (int i = 0; i < n1; i++)
+    {
+        ret[i] = (i < n2 ? v[i] : 0);
+    }
     return ret;
 }
 
 template<int n> std::ostream& operator<<(std::ostream& out, const vec<n>& v) {
-    for (int i = 0; i < n; i++) out << v[i] << " ";
+    for (int i = 0; i < n; i++)
+    {
+	    out << v[i] << " ";
+    }
     return out;
 }
 
