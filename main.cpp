@@ -4,18 +4,73 @@
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red = TGAColor(255, 0, 0, 255);
 
+vec3 light_dir(0, 0, -1);
 
-void DrawModel(int width, int height, TGAImage& image, std::string& name)
+Model GetModel(TGAImage& image, std::string& name)
 {
+	auto width = image.width();
+	auto height = image.height();
 	std::string path = "obj/african_head/african_head.obj";
 	name = path;
 	auto index = path.find_last_of("/");
-	if(index > 0)
+	if (index > 0)
 	{
 		name = path.substr(index + 1);
 	}
 	name += std::to_string(width) + "x" + std::to_string(height) + ".tga";
 	Model model(path);
+	return model;
+}
+
+
+void DrawColorModel(TGAImage& image, std::string& name)
+{
+	auto model = GetModel(image, name);
+	auto width = image.width();
+	auto height = image.height();
+	std::vector<vec2> screen_coords(3);
+	for (int i = 0; i < model.nfaces(); i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			auto world_coords = model.vert(i, j);
+			screen_coords[j] = vec2((world_coords.x + 1) * width / 2, (world_coords.y + 1) * height / 2);
+		}
+		triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(rand() % 255, rand() % 255, rand() % 255));
+	}
+}
+
+void DrawLightModel(TGAImage& image, std::string& name)
+{
+	auto model = GetModel(image, name);
+	auto width = image.width();
+	auto height = image.height();
+	std::vector<vec2> screen_coords(3);
+	std::vector<vec3> world_coords(3);
+	for (int i = 0; i < model.nfaces(); i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			auto world_coord = model.vert(i, j);
+			screen_coords[j] = vec2((world_coord.x + 1) * width / 2, (world_coord.y + 1) * height / 2);
+			world_coords[j] = world_coord;
+		}
+		auto normal = cross((world_coords[2] - world_coords[0]), (world_coords[1] - world_coords[0]));
+		normal.normalize();
+		auto intensity = normal * light_dir;
+		if(intensity > 0)
+		{
+			triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(intensity * 255, intensity * 255, intensity * 255));
+		}
+	}
+}
+
+
+void DrawModel(TGAImage& image, std::string& name)
+{
+	auto model = GetModel(image, name);
+	auto width = image.width();
+	auto height = image.height();
 	for(int i = 0; i < model.nfaces();i++)
 	{
 		for(int j = 0 ; j < 3; j++)
@@ -46,7 +101,8 @@ int main(void)
 	TGAImage image(width, height, TGAImage::RGB);
 	std::string name = "output.tga";
 	//DrawModel(width, height, image, name);
-	DrawTriangle(image, red);
+	DrawLightModel(image, name);
+	//DrawTriangle(image, red);
 	//line(702, 666, 10, 20, image,white);
 	//line2(555, 375, 15, 15, image, red);
 	//line(555, 375, 15, 15, image, white);
