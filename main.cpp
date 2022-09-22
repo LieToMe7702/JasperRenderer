@@ -45,14 +45,17 @@ void DrawLightModel(TGAImage& image, std::string& name)
 	auto model = GetModel(image, name);
 	auto width = image.width();
 	auto height = image.height();
-	std::vector<vec2> screen_coords(3);
+	std::vector<vec3> screen_coords(3);
 	std::vector<vec3> world_coords(3);
+	std::vector<double> z_buffer(width * height, std::numeric_limits<double>::min());
+	auto depth = 256;
 	for (int i = 0; i < model.nfaces(); i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
 			auto world_coord = model.vert(i, j);
-			screen_coords[j] = vec2((world_coord.x + 1) * width / 2, (world_coord.y + 1) * height / 2);
+			screen_coords[j] = vec3((int)((world_coord.x + 1) * width / 2),
+			                        (int)((world_coord.y + 1) * height / 2), (int)((world_coord.z + 1) * depth / 2));
 			world_coords[j] = world_coord;
 		}
 		auto normal = cross((world_coords[2] - world_coords[0]), (world_coords[1] - world_coords[0]));
@@ -60,7 +63,7 @@ void DrawLightModel(TGAImage& image, std::string& name)
 		auto intensity = normal * light_dir;
 		if(intensity > 0)
 		{
-			triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(intensity * 255, intensity * 255, intensity * 255));
+			triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(intensity * 255, intensity * 255, intensity * 255), z_buffer);
 		}
 	}
 }
