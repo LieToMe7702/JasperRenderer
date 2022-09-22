@@ -58,7 +58,7 @@ Model::Model(const std::string filename)
     }
     in.close();
      std::cerr << "# v# " << nverts() << " f# " << nfaces() << " vt# " << tex_coord.size() << " vn# " << norms.size() << std::endl;
-    // load_texture(filename, "_diffuse.tga", diffusemap);
+    load_texture(filename, "_diffuse.tga", diffusemap);
     // load_texture(filename, "_nm_tangent.tga", normalmap);
     // load_texture(filename, "_spec.tga", specularmap);
 }
@@ -76,4 +76,15 @@ vec3 Model::vert(const int i) const {
 
 vec3 Model::vert(const int iface, const int nthvert) const {
     return verts[facet_vrt[iface * 3 + nthvert]];
+}
+
+void Model::load_texture(std::string filename, const std::string suffix, TGAImage& img) {
+    size_t dot = filename.find_last_of(".");
+    if (dot == std::string::npos) return;
+    std::string texfile = filename.substr(0, dot) + suffix;
+    std::cerr << "texture file " << texfile << " loading " << (img.read_tga_file(texfile.c_str()) ? "ok" : "failed") << std::endl;
+}
+
+vec2 Model::uv(const int iface, const int nthvert) const {
+    return tex_coord[facet_tex[iface * 3 + nthvert]];
 }

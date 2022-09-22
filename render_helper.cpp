@@ -79,6 +79,57 @@ vec3 barycentric(const std::vector<vec3>& points, const vec2& p)
 	return res;
 }
 
+void triangle_barycentric(const std::vector<vec3>& points, const std::vector<vec2>& uvs, TGAImage& image, const TGAImage& diff, std::vector<double>& z_buffer, float intensity)
+{
+	if (points.size() != 3)
+	{
+		std::cerr << "input point size is not 3" << std::endl;
+	}
+	vec2 box_min(image.width() - 1, image.height() - 1);
+	vec2 box_max(0, 0);
+	auto width = image.width();
+	for (int i = 0; i < 3; i++)
+	{
+		box_min.x = std::min(box_min.x, points[i].x);
+		box_min.y = std::min(box_min.y, points[i].y);
+
+		box_max.x = std::max(box_max.x, points[i].x);
+		box_max.y = std::max(box_max.y, points[i].y);
+	}
+	vec2 p;
+	box_min.x = std::max(box_min.x, static_cast<double>(0));
+	box_min.y = std::max(box_min.y, static_cast<double>(0));
+	box_max.x = std::min(box_max.x, static_cast<double>(image.width() - 1));
+	box_max.y = std::min(box_max.y, static_cast<double>(image.height() - 1));
+	for (p.x = (int)box_min.x; p.x <= (int)box_max.x; p.x++)
+	{
+		for (p.y = (int)box_min.y; p.y <= (int)box_max.y; p.y++)
+		{
+			auto res = barycentric(points, p);
+			if (res.x < 0 || res.y < 0 || res.z < 0) continue;
+			double z = 0;
+			for (int i = 0; i < 3; i++)
+			{
+				z += points[i].z * res[i];
+			}
+			int offset = p.y * width + p.x;
+			if (z_buffer[offset] < z)
+			{
+				z_buffer[offset] = z;
+				auto newUV = uvs[0] * res[0] + uvs[1] * res[1] + uvs[2] * res[2];
+				auto diffU = diff.width() * newUV.x;
+				auto diffY = diff.height()* newUV.y;
+				auto diffColor = diff.get(diffU, diffY);
+				diffColor[0] *= intensity;
+				diffColor[1] *= intensity;
+				diffColor[2] *= intensity;
+				image.set(p.x, p.y, diffColor);
+			}
+		}
+	}
+}
+
+
 void triangle_barycentric(const std::vector<vec2>& points, TGAImage& image, const TGAColor& color)
 {
 	if (points.size() != 3)
@@ -191,6 +242,11 @@ void triangle_orig(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor& c
 	}
 }
 
+
+void triangle(const std::vector<vec3>& verts, const std::vector<vec2>& uvs,  TGAImage& image, const TGAImage& diff,  std::vector<double>& z_buffer, float intensity)
+{
+	triangle_barycentric(verts, uvs, image, diff, z_buffer, intensity);
+}
 
 void triangle(vec2 t0, vec2 t1, vec2 t2, TGAImage& image, const TGAColor& color)
 {
