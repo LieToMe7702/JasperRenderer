@@ -4,7 +4,7 @@
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red = TGAColor(255, 0, 0, 255);
 
-vec3 light_dir(0, 0, -1);
+vec3 light_dir(0, 0, 1);
 
 Model GetModel(TGAImage& image, std::string& name)
 {
@@ -60,7 +60,7 @@ void DrawLightModel(TGAImage& image, std::string& name)
 			world_coords[j] = world_coord;
 			uv_coords[j] = model.uv(i, j);
 		}
-		auto normal = cross((world_coords[2] - world_coords[0]), (world_coords[1] - world_coords[0]));
+		auto normal = cross((world_coords[1] - world_coords[0]), (world_coords[2] - world_coords[0]));
 		normal.normalize();
 		auto intensity = normal * light_dir;
 		if(intensity > 0)
