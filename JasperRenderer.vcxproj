@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="core.cpp" />
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
@@ -136,6 +137,7 @@
   <ItemGroup>
     <ClInclude Include="geometry.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="core.h" />
     <ClInclude Include="render_helper.h" />
     <ClInclude Include="tgaimage.h" />
   </ItemGroup>

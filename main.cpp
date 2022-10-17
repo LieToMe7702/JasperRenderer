@@ -1,6 +1,7 @@
 #include "model.h"
 #include "tgaimage.h"
 #include "render_helper.h"
+#include "core.h"
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red = TGAColor(255, 0, 0, 255);
 
@@ -98,7 +99,7 @@ void DrawTriangle(TGAImage& image, const TGAColor& color)
 	vec2 v3(400, 600);
 	triangle(v1, v2, v3, image, color);
 }
-
+/*
 int main(void)
 {
 	auto width = 1000;
@@ -114,4 +115,21 @@ int main(void)
 	//image.flip_vertically();
 	image.write_tga_file(name);
 	return 0;
+}*/
+
+int main(void)
+{
+	Renderer renderer;
+	auto width = 1000;
+	auto height = 1000;
+	auto ModelPath = "obj/african_head/african_head.obj";
+	std::shared_ptr<Camera> camera(new Camera());
+	std::shared_ptr<IOutPutTarget> imageOutPutTarget(new TGAOutPutTarget(width, height, "output"));
+	std::shared_ptr<Model> model(new Model(ModelPath));
+	std::shared_ptr<ZBuffer> zbuffer(new ZBuffer(width, height));
+	renderer.SetOutPut(imageOutPutTarget);
+	renderer.AddModel(model);
+	renderer.SetCamera(camera);
+	renderer.SetZBuffer(zbuffer);
+	renderer.DoRender();
 }
