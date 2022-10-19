@@ -17,6 +17,8 @@ void Camera::SetProjectionMatrix(float coeff)
 ZBuffer::ZBuffer(int width, int height)
 {
 	m_buffer.resize(width * height, std::numeric_limits<double>::min());
+	m_width = width;
+	m_height = height;
 }
 
 double ZBuffer::GetDepth(int x, int y)
