@@ -119,17 +119,16 @@ int main(void)
 
 int main(void)
 {
-	Renderer renderer;
 	auto width = 1000;
 	auto height = 1000;
+	Renderer renderer(width,height);
+
 	auto ModelPath = "obj/african_head/african_head.obj";
 	std::shared_ptr<Camera> camera(new Camera());
-	std::shared_ptr<IOutPutTarget> imageOutPutTarget(new TGAOutPutTarget(width, height, "output"));
+	std::shared_ptr<IOutPutTarget> imageOutPutTarget(new TGAOutPutTarget());
 	std::shared_ptr<Model> model(new Model(ModelPath));
-	std::shared_ptr<ZBuffer> zbuffer(new ZBuffer(width, height));
 	renderer.SetOutPut(imageOutPutTarget);
 	renderer.AddModel(model);
 	renderer.SetCamera(camera);
-	renderer.SetZBuffer(zbuffer);
 	renderer.DoRender();
 }
