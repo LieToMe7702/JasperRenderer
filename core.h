@@ -21,12 +21,18 @@ class ZBuffer
 {
 public:
 	ZBuffer(int width, int height);
+	double GetDepth(int x, int y);
+	void SetDepth(int x, int y,double val);
+private:
+	std::vector<double> m_buffer;
+	int m_width;
+	int m_height;
 };
 
 class IOutPutTarget
 {
 public:
-	virtual void SetColor(int x, int y, TGAColor color) = 0;
+	virtual void SetColor(int x, int y, TGAColor& color) = 0;
 	virtual void OutPut() = 0;
 	virtual void Init(int x, int y, std::string name) = 0;
 };
@@ -54,7 +60,7 @@ private:
 class TGAOutPutTarget : public IOutPutTarget
 {
 public:
-	void SetColor(int x, int y, TGAColor color) override;
+	void SetColor(int x, int y, TGAColor& color) override;
 	void OutPut() override;
 	void Init(int x, int y, std::string name) override;
 private:
