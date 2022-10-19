@@ -13,7 +13,7 @@ bool NormalShader::fragment(const vec3 barycentric, TGAColor& color)
 {
 	vec3 light_dir(0, 0, 1);
 
-	auto diff = m_model->diffuse();
+	auto& diff = m_model->diffuse();
 	auto newUV = uvs[0] * barycentric[0] + uvs[1] * barycentric[1] + uvs[2] * barycentric[2];
 	auto diffU = diff.width() * newUV.x;
 	auto diffY = diff.height() * newUV.y;
