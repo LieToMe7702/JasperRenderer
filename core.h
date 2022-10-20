@@ -5,6 +5,13 @@
 
 class IShader;
 
+class Light
+{
+public:
+	vec3 position;
+	vec3 direction;
+};
+
 class Camera
 {
 public:
@@ -44,6 +51,7 @@ public:
 	void SetOutPut(std::shared_ptr<IOutPutTarget> outPutDevice);
 	void AddModel(std::shared_ptr<Model> model);
 	void AddShader(std::shared_ptr<IShader> shader);
+	void AddLight(std::shared_ptr<Light> light);
 	void DoRender();
 	Renderer(int screenX, int screenY);
 private:
@@ -52,6 +60,7 @@ private:
 	std::shared_ptr<ZBuffer> m_zbuffer;
 	std::shared_ptr<Camera> m_camera;
 	std::shared_ptr<IShader> m_shader;
+	std::shared_ptr<Light> m_light;
 	int m_screeX;
 	int m_screenY;
 	void DrawTriangle(vec4 vecs[3]);
@@ -74,7 +83,9 @@ public:
 	virtual void vertex(const int faceIndex, const int vertIndex, vec4& position) = 0;
 	virtual bool fragment(const vec3 barycentric, TGAColor& color) = 0;
 	void AddModel(std::shared_ptr<Model> model);
+	void AddLight(std::shared_ptr<Light> light);
 protected:
 	std::shared_ptr<Model> m_model;
+	std::shared_ptr<Light> m_light;
 };
 

@@ -22,5 +22,6 @@ public:
     vec3 vert(const int i) const;
     vec3 vert(const int iface, const int nthvert) const;
     vec2 uv(const int iface, const int nthvert) const;
+    vec3 normal(const int iface, const int nthvert) const;
     const TGAImage& diffuse()  const { return diffusemap; }
 };

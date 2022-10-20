@@ -129,10 +129,13 @@ int main(void)
 	std::shared_ptr<Camera> camera(new Camera());
 	std::shared_ptr<IOutPutTarget> imageOutPutTarget(new TGAOutPutTarget());
 	std::shared_ptr<Model> model(new Model(ModelPath));
-	std::shared_ptr<IShader> shader(new NormalShader());
+	std::shared_ptr<IShader> shader(new GouraudShader());
+	std::shared_ptr<Light> light(new Light());
+	light->direction = { 0,0,1 };
 	renderer.SetOutPut(imageOutPutTarget);
 	renderer.AddModel(model);
 	renderer.SetCamera(camera);
+	renderer.AddLight(light);
 	renderer.AddShader(shader);
 	renderer.DoRender();
 }

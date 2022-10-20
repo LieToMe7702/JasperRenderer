@@ -51,6 +51,12 @@ void Renderer::AddShader(std::shared_ptr<IShader> shader)
 {
 	m_shader = shader;
 	m_shader->AddModel(m_model);
+	m_shader->AddLight(m_light);
+}
+
+void Renderer::AddLight(std::shared_ptr<Light> light)
+{
+	m_light = light;
 }
 
 void Renderer::DoRender()
@@ -153,4 +159,9 @@ void TGAOutPutTarget::Init(int x, int y, std::string name)
 void IShader::AddModel(std::shared_ptr<Model> model)
 {
 	m_model = model;
+}
+
+void IShader::AddLight(std::shared_ptr<Light> light)
+{
+	m_light = light;
 }

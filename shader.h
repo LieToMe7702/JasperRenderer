@@ -1,7 +1,7 @@
 #pragma once
 #include "core.h"
 
-class NormalShader : public IShader
+class GouraudShader : public IShader
 {
 public:
 	void vertex(const int faceIndex, const int vertIndex, vec4& position) override;
@@ -9,5 +9,6 @@ public:
 private:
 	vec2 uvs[3];
 	vec3 world[3];
+	vec3 varying_intensity;
 };
 
