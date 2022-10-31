@@ -20,7 +20,10 @@ public:
 	vec3 up;
 	void LookAt(vec3 target);
 	void SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int screenHeight);
-	void SetProjectionMatrix(float coeff);
+	void SetProjectionMatrix(double coeff);
+	mat<4, 4> ModelView;
+	mat<4, 4> Viewport;
+	mat<4, 4> Projection;
 
 };
 
@@ -72,6 +75,7 @@ public:
 	void SetColor(int x, int y, TGAColor& color) override;
 	void OutPut() override;
 	void Init(int x, int y, std::string name) override;
+
 private:
 	std::shared_ptr<TGAImage> m_image;
 	std::string name;
@@ -84,8 +88,16 @@ public:
 	virtual bool fragment(const vec3 barycentric, TGAColor& color) = 0;
 	void AddModel(std::shared_ptr<Model> model);
 	void AddLight(std::shared_ptr<Light> light);
+	void AddCamera(std::shared_ptr<Camera> camera);
+
+	static TGAColor sample2D(const TGAImage& img, vec2& uvf) {
+		return img.get(uvf[0] * img.width(), uvf[1] * img.height());
+	}
 protected:
 	std::shared_ptr<Model> m_model;
 	std::shared_ptr<Light> m_light;
+	std::shared_ptr<Camera> m_camera;
+	vec3 uniform_l;       // light direction in view coordinates
+
 };
 

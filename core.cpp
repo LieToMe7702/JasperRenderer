@@ -4,14 +4,52 @@
 
 void Camera::LookAt(vec3 target)
 {
+	auto z = (target - position).normalize();
+	auto x = cross(up, z).normalize();
+	auto y = cross(z, x).normalize();
+
+	mat<4, 4> Minv{
+		{
+			embed<4>(x, 0),
+			embed<4>(y, 0),
+			embed<4>(z, 0),
+			embed<4>(vec3{}, 1),
+		}
+	};
+	mat<4, 4> Tr{
+		{
+			{1, 0, 0, -position.x},
+			{0, 1, 0, -position.y},
+			{0, 0, 1, -position.z},
+			{0, 0, 0, 1}
+		}
+	};
+	ModelView = Minv * Tr;
 }
 
 void Camera::SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int screenHeight)
 {
+	Viewport = {
+		{
+			{screenWidth / 2.0, 0, 0, xOffset + screenWidth / 2.0},
+			{0, screenHeight / 2.0, 0, yOffset + screenHeight / 2.0},
+			{0, 0, 1, 0},
+			{0, 0, 0, 1}
+		}
+	};
 }
 
-void Camera::SetProjectionMatrix(float coeff)
+void Camera::SetProjectionMatrix(double coeff)
 {
+	Projection = {
+		{
+			{1, 0, 0, 0},
+			{0, -1, 0, 0},
+			{0, 0, 1, 0},
+			{0, 0, -1 / coeff, 0}
+		}
+	};
+
 }
 
 ZBuffer::ZBuffer(int width, int height)
@@ -52,6 +90,7 @@ void Renderer::AddShader(std::shared_ptr<IShader> shader)
 	m_shader = shader;
 	m_shader->AddModel(m_model);
 	m_shader->AddLight(m_light);
+	m_shader->AddCamera(m_camera);
 }
 
 void Renderer::AddLight(std::shared_ptr<Light> light)
@@ -93,6 +132,7 @@ void Renderer::DrawTriangle(vec4 vecs[3])
 	vec3 points[3];
 	auto depth = 256;
 	auto z_buffer = m_zbuffer;
+	auto viewport = m_camera->Viewport;
 	for(int i = 0; i < 3; i++)
 	{
 		auto world_coord = proj<3>(vecs[i]);
@@ -164,4 +204,9 @@ void IShader::AddModel(std::shared_ptr<Model> model)
 void IShader::AddLight(std::shared_ptr<Light> light)
 {
 	m_light = light;
+}
+
+void IShader::AddCamera(std::shared_ptr<Camera> camera)
+{
+	m_camera = camera;
 }

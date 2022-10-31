@@ -79,6 +79,21 @@ vec3 barycentric(vec3 points[3], const vec2& p)
 	return res;
 }
 
+vec3 barycentric(vec2 points[3], const vec2& p)
+{
+	mat<3, 3> ABC = { {embed<3>(points[0]), embed<3>(points[1]), embed<3>(points[2])} };
+	if (ABC.det() < 1e-3) return vec3(-1, 1, 1); // for a degenerate triangle generate negative coordinates, it will be thrown away by the rasterizator
+	return ABC.invert_transpose() * embed<3>(p);
+
+
+	vec3 vec_x(points[1][0] - points[0][0], points[2][0] - points[0][0], points[0][0] - p[0]);
+	vec3 vec_y(points[1][1] - points[0][1], points[2][1] - points[0][1], points[0][1] - p[1]);
+	vec3 cross_vec = cross(vec_x, vec_y);
+	if (std::abs(cross_vec.z) < 1e-3) return { -1, 1, 1 };
+	vec3 res{ 1.0f - (cross_vec.x + cross_vec.y) / cross_vec.z,cross_vec.x / cross_vec.z,cross_vec.y / cross_vec.z };
+	return res;
+}
+
 vec3 barycentric(std::vector<vec3> points, const vec2& p)
 {
 	vec3 vec_x(points[1][0] - points[0][0], points[2][0] - points[0][0], points[0][0] - p[0]);

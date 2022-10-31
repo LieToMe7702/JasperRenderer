@@ -132,6 +132,11 @@ int main(void)
 	std::shared_ptr<IShader> shader(new GouraudShader());
 	std::shared_ptr<Light> light(new Light());
 	light->direction = { 0,0,1 };
+	camera->position = { 1,1,3 };
+	camera->up = { 0,1,0 };
+	camera->LookAt({ 0,0,0 });
+	camera->SetViewPortMatrix(0, 0, width, height);
+	camera->SetProjectionMatrix((camera->position - vec3{ 0, 0, 0 }).norm());
 	renderer.SetOutPut(imageOutPutTarget);
 	renderer.AddModel(model);
 	renderer.SetCamera(camera);

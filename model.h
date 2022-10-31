@@ -14,6 +14,8 @@ class Model
     std::vector<int> facet_tex{};  // per-triangle indices in the above arrays
     std::vector<int> facet_nrm{};
     TGAImage diffusemap{};
+    TGAImage normalmap{};          // normal map texture
+    TGAImage specularmap{};        // specular map texture
     void load_texture(const std::string filename, const std::string suffix, TGAImage& img);
 public:
 	Model(const std::string fileName);
@@ -23,5 +25,8 @@ public:
     vec3 vert(const int iface, const int nthvert) const;
     vec2 uv(const int iface, const int nthvert) const;
     vec3 normal(const int iface, const int nthvert) const;
+    vec3 normal(const vec2& uv) const;                     // fetch the normal vector from the normal map texture
     const TGAImage& diffuse()  const { return diffusemap; }
+    const TGAImage& specular() const { return specularmap; }
+
 };
