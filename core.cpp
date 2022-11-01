@@ -18,13 +18,13 @@ void Camera::LookAt(vec3 target)
 	};
 	mat<4, 4> Tr{
 		{
-			{1, 0, 0, -target.x},
-			{0, 1, 0, -target.y},
-			{0, 0, 1, -target.z},
+			{1, 0, 0, -position.x},
+			{0, 1, 0, -position.y},
+			{0, 0, 1, -position.z},
 			{0, 0, 0, 1}
 		}
 	};
-	ModelView = Minv * Tr;
+	ModelView = Tr * Minv;
 }
 
 void Camera::SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int screenHeight)
@@ -54,7 +54,7 @@ void Camera::SetProjectionMatrix(double coeff)
 
 ZBuffer::ZBuffer(int width, int height)
 {
-	m_buffer.resize(width * height, std::numeric_limits<double>::min());
+	m_buffer.resize(width * height, std::numeric_limits<double>::lowest());
 	m_width = width;
 	m_height = height;
 }
