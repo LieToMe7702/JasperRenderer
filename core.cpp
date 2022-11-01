@@ -4,7 +4,7 @@
 
 void Camera::LookAt(vec3 target)
 {
-	auto z = (target - position).normalize();
+	auto z = (position - target).normalize();
 	auto x = cross(up, z).normalize();
 	auto y = cross(z, x).normalize();
 
@@ -18,9 +18,9 @@ void Camera::LookAt(vec3 target)
 	};
 	mat<4, 4> Tr{
 		{
-			{1, 0, 0, -position.x},
-			{0, 1, 0, -position.y},
-			{0, 0, 1, -position.z},
+			{1, 0, 0, -target.x},
+			{0, 1, 0, -target.y},
+			{0, 0, 1, -target.z},
 			{0, 0, 0, 1}
 		}
 	};
@@ -33,7 +33,7 @@ void Camera::SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int sc
 		{
 			{screenWidth / 2.0, 0, 0, xOffset + screenWidth / 2.0},
 			{0, screenHeight / 2.0, 0, yOffset + screenHeight / 2.0},
-			{0, 0, 1, 0},
+			{0, 0, depth / 2.0, depth / 2.0},
 			{0, 0, 0, 1}
 		}
 	};
@@ -44,9 +44,9 @@ void Camera::SetProjectionMatrix(double coeff)
 	Projection = {
 		{
 			{1, 0, 0, 0},
-			{0, -1, 0, 0},
+			{0, 1, 0, 0},
 			{0, 0, 1, 0},
-			{0, 0, -1 / coeff, 0}
+			{0, 0, -1 / coeff, 1}
 		}
 	};
 
@@ -129,47 +129,46 @@ void Renderer::DrawTriangle(vec4 vecs[3])
 	auto height = m_screenY;
 	vec2 box_min(width - 1, height - 1);
 	vec2 box_max(0, 0);
-	vec3 points[3];
-	auto depth = 256;
 	auto z_buffer = m_zbuffer;
-	auto viewport = m_camera->Viewport;
-	for(int i = 0; i < 3; i++)
-	{
-		auto world_coord = proj<3>(vecs[i]);
-		points[i] = vec3((int)((world_coord.x + 1) * width / 2),
-			(int)((world_coord.y + 1) * height / 2), (int)((world_coord.z + 1) * depth / 2));
-	}
+
 
 	for (int i = 0; i < 3; i++)
 	{
-		box_min.x = std::min(box_min.x, points[i].x);
-		box_min.y = std::min(box_min.y, points[i].y);
+		box_min.x = std::min(box_min.x, vecs[i][0]/ vecs[i][3]);
+		box_min.y = std::min(box_min.y, vecs[i][1] / vecs[i][3]);
 
-		box_max.x = std::max(box_max.x, points[i].x);
-		box_max.y = std::max(box_max.y, points[i].y);
+		box_max.x = std::max(box_max.x, vecs[i][0] / vecs[i][3]);
+		box_max.y = std::max(box_max.y, vecs[i][1] / vecs[i][3]);
 	}
 	vec2 p;
 	box_min.x = std::max(box_min.x, static_cast<double>(0));
 	box_min.y = std::max(box_min.y, static_cast<double>(0));
 	box_max.x = std::min(box_max.x, static_cast<double>(width - 1));
 	box_max.y = std::min(box_max.y, static_cast<double>(height - 1));
+	vec2 vec2array[3];
 	for (p.x = (int)box_min.x; p.x <= (int)box_max.x; p.x++)
 	{
 		for (p.y = (int)box_min.y; p.y <= (int)box_max.y; p.y++)
 		{
-			auto res = barycentric(points, p);
+			vec2array[0] = proj<2>(vecs[0] / vecs[0][3]);
+			vec2array[1] = proj<2>(vecs[1] / vecs[1][3]);
+			vec2array[2] = proj<2>(vecs[2] / vecs[2][3]);
+			auto res = barycentric(vec2array, p);
 			if (res.x < 0 || res.y < 0 || res.z < 0) continue;
 			double z = 0;
+			double w = 0;
 			for (int i = 0; i < 3; i++)
 			{
-				z += points[i].z * res[i];
+				z += vecs[i][2] * res[i];
+				w += vecs[i][3] * res[i];
 			}
-			if(z_buffer->GetDepth(p.x,p.y) < z)
+			auto depth = z / w;
+			if(z_buffer->GetDepth(p.x,p.y) < depth)
 			{
 				TGAColor color;
-				if(m_shader->fragment(res, color))
+				if(!m_shader->fragment(res, color))
 				{
-					z_buffer->SetDepth(p.x, p.y, z);
+					z_buffer->SetDepth(p.x, p.y, depth);
 					m_outPut->SetColor(p.x, p.y, color);
 				}
 			}

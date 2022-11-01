@@ -81,9 +81,10 @@ vec3 barycentric(vec3 points[3], const vec2& p)
 
 vec3 barycentric(vec2 points[3], const vec2& p)
 {
+	/*
 	mat<3, 3> ABC = { {embed<3>(points[0]), embed<3>(points[1]), embed<3>(points[2])} };
 	if (ABC.det() < 1e-3) return vec3(-1, 1, 1); // for a degenerate triangle generate negative coordinates, it will be thrown away by the rasterizator
-	return ABC.invert_transpose() * embed<3>(p);
+	return ABC.invert_transpose() * embed<3>(p);*/
 
 
 	vec3 vec_x(points[1][0] - points[0][0], points[2][0] - points[0][0], points[0][0] - p[0]);

@@ -24,6 +24,7 @@ public:
 	mat<4, 4> ModelView;
 	mat<4, 4> Viewport;
 	mat<4, 4> Projection;
+	int depth = 2000;
 
 };
 
@@ -97,7 +98,6 @@ protected:
 	std::shared_ptr<Model> m_model;
 	std::shared_ptr<Light> m_light;
 	std::shared_ptr<Camera> m_camera;
-	vec3 uniform_l;       // light direction in view coordinates
 
 };
 
