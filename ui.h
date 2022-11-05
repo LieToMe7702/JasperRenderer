@@ -8,10 +8,13 @@ class Windows : public IOutPutTarget
 public:
 	//void RegisterEvent(int keycode, std::function<void> callback);
 	void SetColor(int x, int y, TGAColor& color) override;
+	void screen_update();
 	void OutPut() override;
 	int screen_close();
 	void screen_dispatch();
 	void Init(int x, int y, std::string name) override;
+	bool NeedClose() override;
+	void BeforeOutPot() override;
 	//int screen_exit;
 	int screen_keys[512];
 	int screen_w, screen_h, screen_exit = 0;

@@ -98,19 +98,34 @@ void Renderer::AddLight(std::shared_ptr<Light> light)
 	m_light = light;
 }
 
+void Renderer::DoRender(bool loop)
+{
+	if(!loop)
+	{
+		DoRender();
+		return;
+	}
+	do
+	{
+		DoRender();
+	} while (!m_outPut->NeedClose());
+
+
+}
+
 void Renderer::DoRender()
 {
-	for(int i = 0; i < m_model->nfaces();i++)
+	for (int i = 0; i < m_model->nfaces(); i++)
 	{
 		vec4 clip_vert[3];
-		for(int j = 0; j < 3;j++)
+		for (int j = 0; j < 3; j++)
 		{
 			m_shader->vertex(i, j, clip_vert[j]);
 		}
 		DrawTriangle(clip_vert);
 	}
 
-	if(m_outPut != nullptr)
+	if (m_outPut != nullptr)
 	{
 		m_outPut->OutPut();
 	}
@@ -192,6 +207,15 @@ void TGAOutPutTarget::Init(int x, int y, std::string name)
 {
 	m_image = std::make_shared<TGAImage>(x, y, TGAImage::RGB);
 	this->name = name;
+}
+
+bool TGAOutPutTarget::NeedClose()
+{
+	return true;
+}
+
+void TGAOutPutTarget::BeforeOutPot()
+{
 }
 
 

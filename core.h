@@ -44,8 +44,10 @@ class IOutPutTarget
 {
 public:
 	virtual void SetColor(int x, int y, TGAColor& color) = 0;
+	virtual void BeforeOutPot() = 0;
 	virtual void OutPut() = 0;
 	virtual void Init(int x, int y, std::string name) = 0;
+	virtual bool NeedClose() = 0;
 };
 
 class Renderer
@@ -56,7 +58,7 @@ public:
 	void AddModel(std::shared_ptr<Model> model);
 	void AddShader(std::shared_ptr<IShader> shader);
 	void AddLight(std::shared_ptr<Light> light);
-	void DoRender();
+	void DoRender(bool loop);
 	Renderer(int screenX, int screenY);
 private:
 	std::shared_ptr<Model> m_model;
@@ -68,6 +70,7 @@ private:
 	int m_screeX;
 	int m_screenY;
 	void DrawTriangle(vec4 vecs[3]);
+	void DoRender();
 };
 
 class TGAOutPutTarget : public IOutPutTarget
@@ -76,6 +79,8 @@ public:
 	void SetColor(int x, int y, TGAColor& color) override;
 	void OutPut() override;
 	void Init(int x, int y, std::string name) override;
+	bool NeedClose() override;
+	void BeforeOutPot() override;
 
 private:
 	std::shared_ptr<TGAImage> m_image;

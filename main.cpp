@@ -13,8 +13,8 @@ int main(void)
 
 	auto ModelPath = "obj/african_head/african_head.obj";
 	std::shared_ptr<Camera> camera(new Camera());
-	std::shared_ptr<IOutPutTarget> imageOutPutTarget(new TGAOutPutTarget());
-	std::shared_ptr<IOutPutTarget> screenOutPutTarget(new Windows());
+	//std::shared_ptr<IOutPutTarget> outPutTarget(new TGAOutPutTarget());
+	std::shared_ptr<IOutPutTarget> outPutTarget(new Windows());
 	std::shared_ptr<Model> model(new Model(ModelPath));
 	std::shared_ptr<IShader> shader(new GouraudShader());
 	std::shared_ptr<Light> light(new Light());
@@ -25,11 +25,11 @@ int main(void)
 	camera->LookAt({ 0,0,0 });
 	camera->SetViewPortMatrix(width / 8, height / 8, width * 3 / 4, height * 3 / 4);
 	camera->SetProjectionMatrix((camera->position - vec3{ 0, 0, 0 }).norm());
-	renderer.SetOutPut(imageOutPutTarget);
+	renderer.SetOutPut(outPutTarget);
 	renderer.AddModel(model);
 	renderer.SetCamera(camera);
 	renderer.AddLight(light);
 	renderer.AddShader(shader);
-	renderer.DoRender();
-	screenOutPutTarget->Init(width, height, "test");
+	renderer.DoRender(true);
+	//screenOutPutTarget->Init(width, height, "test");
 }

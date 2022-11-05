@@ -19,10 +19,25 @@ void Windows::RegisterEvent(int keycode, std::function<void> callback)
 
 void Windows::SetColor(int x, int y, TGAColor& color)
 {
+	y = screen_h - y - 1;
+	auto offset = screen_w * 4 * y + 4 * x;
+	screen_fb[offset] = color.bgra[0];
+	screen_fb[offset + 1] = color.bgra[1];
+	screen_fb[offset + 2] = color.bgra[2];
+	screen_fb[offset + 3] = color.bgra[3];
+}
+
+void Windows::screen_update()
+{
+	HDC hDC = GetDC(screen_handle);
+	BitBlt(hDC, 0, 0, screen_w, screen_h, screen_dc, 0, 0, SRCCOPY);
+	ReleaseDC(screen_handle, hDC);
+	screen_dispatch();
 }
 
 void Windows::OutPut()
 {
+	screen_update();
 }
 
 int Windows::screen_close()
@@ -62,7 +77,7 @@ void Windows::Init(int w, int h, std::string name)
 	WNDCLASS wc = { CS_BYTEALIGNCLIENT, (WNDPROC)screen_events, 0, 0, 0,
 		NULL, NULL, NULL, NULL, _T("SCREEN3.1415926") };
 	BITMAPINFO bi = { { sizeof(BITMAPINFOHEADER), w, -h, 1, 32, BI_RGB,
-		static_cast<unsigned long>(w) * h * 4, 0, 0, 0, 0 } };
+		static_cast<unsigned long>(w * h * 4), 0, 0, 0, 0 } };
 	RECT rect = { 0, 0, w, h };
 	int wx, wy, sx, sy;
 	LPVOID ptr;
@@ -112,7 +127,17 @@ void Windows::Init(int w, int h, std::string name)
 	screen_dispatch();
 
 	memset(screen_keys, 0, sizeof(int) * 512);
-	memset(screen_fb, 0, w * h * 4);
+	memset(screen_fb, 0,  sizeof(unsigned char) * w * h * 4);
 
 	return ;
+}
+
+bool Windows::NeedClose()
+{
+	return !(screen_exit == 0 && screen_keys[VK_ESCAPE] == 0);
+}
+
+void Windows::BeforeOutPot()
+{
+	screen_dispatch();
 }
