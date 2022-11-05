@@ -3,6 +3,7 @@
 #include "render_helper.h"
 #include "core.h"
 #include "shader.h"
+#include "ui.h"
 
 int main(void)
 {
@@ -13,6 +14,7 @@ int main(void)
 	auto ModelPath = "obj/african_head/african_head.obj";
 	std::shared_ptr<Camera> camera(new Camera());
 	std::shared_ptr<IOutPutTarget> imageOutPutTarget(new TGAOutPutTarget());
+	std::shared_ptr<IOutPutTarget> screenOutPutTarget(new Windows());
 	std::shared_ptr<Model> model(new Model(ModelPath));
 	std::shared_ptr<IShader> shader(new GouraudShader());
 	std::shared_ptr<Light> light(new Light());
@@ -29,4 +31,5 @@ int main(void)
 	renderer.AddLight(light);
 	renderer.AddShader(shader);
 	renderer.DoRender();
+	screenOutPutTarget->Init(width, height, "test");
 }
