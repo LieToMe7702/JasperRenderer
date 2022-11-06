@@ -69,6 +69,14 @@ void ZBuffer::SetDepth(int x, int y, double val)
 	m_buffer[y * m_width + x] = val;
 }
 
+void ZBuffer::Clear()
+{
+	for (double& i : m_buffer)
+	{
+		i = std::numeric_limits<double>::lowest();
+	}
+}
+
 void Renderer::SetCamera(std::shared_ptr<Camera> camera)
 {
 	m_camera = camera;
@@ -77,7 +85,7 @@ void Renderer::SetCamera(std::shared_ptr<Camera> camera)
 void Renderer::SetOutPut(std::shared_ptr<IOutPutTarget> outPutDevice)
 {
 	m_outPut = outPutDevice;
-	m_outPut->Init(m_screeX, m_screenY, "output");
+	m_outPut->Init(m_screenX, m_screenY, "output");
 }
 
 void Renderer::AddModel(std::shared_ptr<Model> model)
@@ -115,6 +123,17 @@ void Renderer::DoRender(bool loop)
 
 void Renderer::DoRender()
 {
+	m_zbuffer->Clear();
+	if (m_outPut != nullptr)
+	{
+		m_outPut->BeforeOutPot();
+	}
+	auto camera = m_camera;
+	auto height = m_screenY;
+	auto width = m_screenX;
+	camera->LookAt({ 0,0,0 });
+	camera->SetViewPortMatrix(0, 0, width, height);
+	camera->SetProjectionMatrix((camera->position - vec3{ 0, 0, 0 }).norm());
 	for (int i = 0; i < m_model->nfaces(); i++)
 	{
 		vec4 clip_vert[3];
@@ -133,14 +152,14 @@ void Renderer::DoRender()
 
 Renderer::Renderer(int screenX, int screenY)
 {
-	m_screeX = screenX;
+	m_screenX = screenX;
 	m_screenY = screenY;
-	m_zbuffer = std::make_shared<ZBuffer>(m_screeX, m_screenY);
+	m_zbuffer = std::make_shared<ZBuffer>(m_screenX, m_screenY);
 }
 
 void Renderer::DrawTriangle(vec4 vecs[3])
 {
-	auto width = m_screeX;
+	auto width = m_screenX;
 	auto height = m_screenY;
 	vec2 box_min(width - 1, height - 1);
 	vec2 box_max(0, 0);

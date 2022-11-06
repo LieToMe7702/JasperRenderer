@@ -1,12 +1,13 @@
 #pragma once
 #include <functional>
+#include <unordered_map>
 #include <windows.h>
 
 #include "core.h"
 class Windows : public IOutPutTarget
 {
 public:
-	//void RegisterEvent(int keycode, std::function<void> callback);
+	void RegisterEvent(int keycode, std::function<void()> callback);
 	void SetColor(int x, int y, TGAColor& color) override;
 	void screen_update();
 	void OutPut() override;
@@ -14,6 +15,8 @@ public:
 	void screen_dispatch();
 	void Init(int x, int y, std::string name) override;
 	bool NeedClose() override;
+	void handle_input();
+	void clear_old_pixel();
 	void BeforeOutPot() override;
 	//int screen_exit;
 	int screen_keys[512];
@@ -25,5 +28,6 @@ public:
 	 HBITMAP screen_ob = nullptr;		// ÀÏµÄ BITMAP
 	unsigned char* screen_fb = nullptr;		// frame buffer
 	long screen_pitch = 0;
+	std::unordered_map<int, std::vector<std::function<void()>>> callbackMap;
 
 };

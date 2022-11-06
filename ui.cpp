@@ -12,10 +12,16 @@ static LRESULT screen_events(HWND hWnd, UINT msg,
 	}
 	return 0;
 }
-/*
-void Windows::RegisterEvent(int keycode, std::function<void> callback)
+
+void Windows::RegisterEvent(int keycode, std::function<void()> callback)
 {
-}*/
+	if(callbackMap.count(keycode) == 0)
+	{
+		callbackMap[keycode] = {};
+	}
+	auto& list = callbackMap[keycode];
+	list.emplace_back(std::move(callback));
+}
 
 void Windows::SetColor(int x, int y, TGAColor& color)
 {
@@ -137,7 +143,30 @@ bool Windows::NeedClose()
 	return !(screen_exit == 0 && screen_keys[VK_ESCAPE] == 0);
 }
 
+void Windows::handle_input()
+{
+	for (int i = 0; i < 512; i++)
+	{
+		if (screen_keys[i] != 0 && callbackMap.count(i) != 0)
+		{
+			auto& callbacks = callbackMap[i];
+			clear_old_pixel();
+			for (auto& it : callbacks)
+			{
+				it();
+			}
+		}
+	}
+}
+
+void Windows::clear_old_pixel()
+{
+	memset(screen_fb, 0, sizeof(unsigned char) * screen_w * screen_h * 4);
+}
+
 void Windows::BeforeOutPot()
 {
 	screen_dispatch();
+	clear_old_pixel();
+	handle_input();
 }

@@ -34,6 +34,7 @@ public:
 	ZBuffer(int width, int height);
 	double GetDepth(int x, int y);
 	void SetDepth(int x, int y,double val);
+	void Clear();
 private:
 	std::vector<double> m_buffer;
 	int m_width;
@@ -67,7 +68,7 @@ private:
 	std::shared_ptr<Camera> m_camera;
 	std::shared_ptr<IShader> m_shader;
 	std::shared_ptr<Light> m_light;
-	int m_screeX;
+	int m_screenX;
 	int m_screenY;
 	void DrawTriangle(vec4 vecs[3]);
 	void DoRender();
