@@ -1,10 +1,10 @@
 #include "core.h"
-
 #include "render_helper.h"
 
 void Camera::LookAt(vec3 target)
 {
 	auto z = (position - target).normalize();
+	//std::cout << "x="<<z[0] << "y="<<z[1]<< "z=" << z[2] << std::endl;
 	auto x = cross(up, z).normalize();
 	auto y = cross(z, x).normalize();
 
@@ -25,6 +25,7 @@ void Camera::LookAt(vec3 target)
 		}
 	};
 	ModelView = Tr * Minv;
+	this->target = target;
 }
 
 void Camera::SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int screenHeight)
@@ -39,8 +40,18 @@ void Camera::SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int sc
 	};
 }
 
-void Camera::SetProjectionMatrix(double coeff)
+void Camera::SetProjectionMatrix()
 {
+	auto sub = (this->position - this->target).normalize();
+	auto coeff = sub.norm();
+	if(sub.z < 0)
+	{
+		coeff = -coeff;
+	}
+	if(abs(coeff) < std::numeric_limits<double>::min())
+	{
+		coeff = 0;
+	}
 	Projection = {
 		{
 			{1, 0, 0, 0},
@@ -123,6 +134,17 @@ void Renderer::DoRender(bool loop)
 
 void Renderer::DoRender()
 {
+	if (tick_time == 0)
+	{
+		tick_time = clock();
+	}
+	auto curTime = clock();
+	if(curTime - tick_time > CLOCKS_PER_SEC)
+	{
+		tick_time += CLOCKS_PER_SEC;
+		std::cout << frame << std::endl;
+		frame = 0;
+	}
 	m_zbuffer->Clear();
 	if (m_outPut != nullptr)
 	{
@@ -133,7 +155,7 @@ void Renderer::DoRender()
 	auto width = m_screenX;
 	camera->LookAt({ 0,0,0 });
 	camera->SetViewPortMatrix(0, 0, width, height);
-	camera->SetProjectionMatrix((camera->position - vec3{ 0, 0, 0 }).norm());
+	camera->SetProjectionMatrix();
 	for (int i = 0; i < m_model->nfaces(); i++)
 	{
 		vec4 clip_vert[3];
@@ -148,6 +170,7 @@ void Renderer::DoRender()
 	{
 		m_outPut->OutPut();
 	}
+	frame++;
 }
 
 Renderer::Renderer(int screenX, int screenY)

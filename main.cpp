@@ -18,11 +18,11 @@ int main(void)
 	auto degree = 1;
 	outPutTarget->RegisterEvent(VK_UP, [&]()
 	{
-		camera->position = camera->position + vec3{0, 0.1, 0};
+		camera->position = camera->position + vec3{0, 0, 1};
 	});
 	outPutTarget->RegisterEvent(VK_DOWN, [&]()
 	{
-		camera->position = camera->position + vec3{0, -0.1, 0};
+		camera->position = camera->position + vec3{0, 0, -1};
 	});
 	outPutTarget->RegisterEvent(VK_LEFT, [&]()
 		{
@@ -37,7 +37,7 @@ int main(void)
 	std::shared_ptr<Light> light(new Light());
 	light->direction = { 1,1,0 };
 	light->direction.normalize();
-	camera->position = { 0,0,4 };
+	camera->position = { 0,0,1 };
 	camera->up = { 0,1,0 };
 
 	renderer.SetOutPut(outPutTarget);

@@ -18,9 +18,10 @@ public:
 	vec3 position;
 	vec3 forward;
 	vec3 up;
+	vec3 target;
 	void LookAt(vec3 target);
 	void SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int screenHeight);
-	void SetProjectionMatrix(double coeff);
+	void SetProjectionMatrix();
 	mat<4, 4> ModelView;
 	mat<4, 4> Viewport;
 	mat<4, 4> Projection;
@@ -72,6 +73,8 @@ private:
 	int m_screenY;
 	void DrawTriangle(vec4 vecs[3]);
 	void DoRender();
+	clock_t tick_time;
+	int frame;
 };
 
 class TGAOutPutTarget : public IOutPutTarget
