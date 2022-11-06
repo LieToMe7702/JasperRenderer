@@ -15,23 +15,22 @@ int main(void)
 	std::shared_ptr<Camera> camera(new Camera());
 	//std::shared_ptr<IOutPutTarget> outPutTarget(new TGAOutPutTarget());
 	std::shared_ptr<Windows> outPutTarget(new Windows());
-	auto degree = 1;
 	outPutTarget->RegisterEvent(VK_UP, [&]()
 	{
-		camera->position = camera->position + vec3{0, 0, 1};
+		camera->position = camera->position + vec3{0, 0, 0.1};
 	});
 	outPutTarget->RegisterEvent(VK_DOWN, [&]()
 	{
-		camera->position = camera->position + vec3{0, 0, -1};
+		camera->position = camera->position + vec3{0, 0, -0.1};
 	});
 	outPutTarget->RegisterEvent(VK_LEFT, [&]()
-		{
-			camera->position = camera->position + vec3{ -0.1, 0, 0 };
-		});
+	{
+		camera->position = camera->position + vec3{-0.1, 0, 0};
+	});
 	outPutTarget->RegisterEvent(VK_RIGHT, [&]()
-		{
-			camera->position = camera->position + vec3{ 0.1, -0, 0 };
-		});
+	{
+		camera->position = camera->position + vec3{0.1, -0, 0};
+	});
 	std::shared_ptr<Model> model(new Model(ModelPath));
 	std::shared_ptr<IShader> shader(new GouraudShader());
 	std::shared_ptr<Light> light(new Light());
