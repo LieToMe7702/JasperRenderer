@@ -65,7 +65,7 @@ void Camera::SetProjectionMatrix()
 
 void Camera::SetRotate()
 {
-	auto theta = rotation.x;
+	auto theta = rotation.y;
 	float qsin = (float)sin(theta * 0.5f);
 	float qcos = (float)cos(theta * 0.5f);
 		vec3 vec = vec3{ 0, 1, 0};

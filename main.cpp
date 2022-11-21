@@ -31,26 +31,10 @@ void Rotate(const std::shared_ptr<Camera>& camera, float x, float y, float z)
 
 void RegisterKeyEvent(std::shared_ptr<Camera> camera, std::shared_ptr<Windows> outPutTarget)
 {
-	outPutTarget->RegisterEvent(VK_UP, [&]
-	{
-		Move(camera, 0, 0, 0.1f);
-	});
-	outPutTarget->RegisterEvent(VK_DOWN, [&]
-	{
-		Move(camera, 0, 0, -0.1f);
-	});
-	outPutTarget->RegisterEvent(VK_LEFT, [&]
-	{
-		Move(camera, -0.1f, 0, 0);
-	});
-	outPutTarget->RegisterEvent(VK_RIGHT, [&]
-	{
-		Move(camera, 0.1f, 0, 0);
-	});
-	outPutTarget->RegisterEvent('A', [&] { Rotate(camera, 0.1f, 0, 0); });
-	outPutTarget->RegisterEvent('W', [&] { Rotate(camera, 0, 1, 0); });
-	outPutTarget->RegisterEvent('S', [&] { Rotate(camera, 0, -1, 0); });
-	outPutTarget->RegisterEvent('D', [&] { Rotate(camera, -0.1f, 0, 0); });
+	outPutTarget->RegisterEvent(VK_UP, [&] { Move(camera, 0, 0, 0.1f);});
+	outPutTarget->RegisterEvent(VK_DOWN, [&]{ Move(camera, 0, 0, -0.1f);});
+	outPutTarget->RegisterEvent(VK_LEFT, [&] { Rotate(camera, 0, 0.1f, 0); });
+	outPutTarget->RegisterEvent(VK_RIGHT, [&] { Rotate(camera, 0, -0.1f, 0); });
 }
 
 int main(void)
@@ -67,7 +51,7 @@ int main(void)
 	std::shared_ptr<Model> model(new Model(ModelPath));
 	std::shared_ptr<IShader> shader(new GouraudShader());
 	std::shared_ptr<Light> light(new Light());
-	light->direction = { 1,1,0 };
+	light->direction = { 0,0,1 };
 	light->direction.normalize();
 	camera->position = { 0,0,1 };
 	camera->up = { 0,1,0 };

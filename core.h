@@ -12,6 +12,7 @@ public:
 	vec3 direction;
 };
 
+
 class Camera
 {
 public:
