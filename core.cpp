@@ -8,11 +8,23 @@ void Camera::LookAt(vec3 target)
 	auto x = cross(up, z).normalize();
 	auto y = cross(z, x).normalize();
 
-	auto& m = ModelView;
-	ModelView[0] = embed<4>(x, x * position * -1);
-	ModelView[1] = embed<4>(y, y * position * -1);
-	ModelView[2] = embed<4>(z, z * position * -1);
-	ModelView[3] = embed<4>(vec3{}, 1.0f);
+	mat<4, 4> Minv{
+		{
+			embed<4>(x, 0),
+			embed<4>(y, 0),
+			embed<4>(z, 0),
+			embed<4>(vec3{}, 1),
+		}
+	};
+	mat<4, 4> Tr{
+		{
+			{1, 0, 0, -position.x},
+			{0, 1, 0, -position.y},
+			{0, 0, 1, -position.z},
+			{0, 0, 0, 1}
+		}
+	};
+	ModelView = Minv * Tr;
 	this->target = target;
 }
 
