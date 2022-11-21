@@ -19,9 +19,12 @@ public:
 	vec3 forward;
 	vec3 up;
 	vec3 target;
+	vec3 rotation;
 	void LookAt(vec3 target);
 	void SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int screenHeight);
 	void SetProjectionMatrix();
+	void SetRotate();
+	mat<4, 4> Rotate;
 	mat<4, 4> ModelView;
 	mat<4, 4> Viewport;
 	mat<4, 4> Projection;

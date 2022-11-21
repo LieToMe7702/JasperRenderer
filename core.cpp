@@ -63,6 +63,32 @@ void Camera::SetProjectionMatrix()
 
 }
 
+void Camera::SetRotate()
+{
+	auto theta = rotation.x;
+	float qsin = (float)sin(theta * 0.5f);
+	float qcos = (float)cos(theta * 0.5f);
+		vec3 vec = vec3{ 0, 1, 0};
+		vec.normalize();
+	float w = qcos;
+	auto x = vec.x * qsin;
+	auto y = vec.y * qsin;
+	auto z = vec.z * qsin;
+	auto& m = Rotate;
+	m[0][0] = 1 - 2 * y * y - 2 * z * z;
+	m[0][1] = 2 * x * y - 2 * w * z;
+	m[0][2] = 2 * x * z + 2 * w * y;
+	m[1][0] = 2 * x * y + 2 * w * z;
+	m[1][1] = 1 - 2 * x * x - 2 * z * z;
+	m[1][2] = 2 * y * z - 2 * w * x;
+	m[2][0] = 2 * x * z - 2 * w * y;
+	m[2][1] = 2 * y * z + 2 * w * x;
+	m[2][2] = 1 - 2 * x * x - 2 * y * y;
+	m[3][0] = m[3][1] = m[3][2] = 0.0f;
+	m[0][3] = m[1][3] = m[2][3] = 0.0f;
+	m[3][3] = 1.0f;
+}
+
 ZBuffer::ZBuffer(int width, int height)
 {
 	m_buffer.resize(width * height, std::numeric_limits<double>::lowest());
@@ -153,6 +179,7 @@ void Renderer::DoRender()
 	auto camera = m_camera;
 	auto height = m_screenY;
 	auto width = m_screenX;
+	camera->SetRotate();
 	camera->LookAt({ 0,0,0 });
 	camera->SetViewPortMatrix(0, 0, width, height);
 	camera->SetProjectionMatrix();

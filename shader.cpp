@@ -8,7 +8,7 @@ void GouraudShader::vertex(const int faceIndex, const int vertIndex, vec4& posit
 	world[vertIndex] = res;
 	varying_intensity[vertIndex] = std::max(static_cast<double>(0), m_model->normal(faceIndex, vertIndex) * m_light->direction);
 	position = embed<4>(res);
-	position = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * position;
+	position = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate * position;
 }
 
 bool GouraudShader::fragment(const vec3 barycentric, TGAColor& color)
