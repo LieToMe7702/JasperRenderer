@@ -28,5 +28,6 @@ public:
     vec3 normal(const vec2& uv) const;                     // fetch the normal vector from the normal map texture
     const TGAImage& diffuse()  const { return diffusemap; }
     const TGAImage& specular() const { return specularmap; }
+    const TGAColor& diffuse(double u, double v);
 
 };

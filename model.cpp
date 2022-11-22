@@ -98,3 +98,12 @@ vec3 Model::normal(const vec2& uvf) const {
     TGAColor c = normalmap.get(uvf[0] * normalmap.width(), uvf[1] * normalmap.height());
     return vec3{ (double)c[2],(double)c[1],(double)c[0] }*2. / 255. - vec3{ 1,1,1 };
 }
+
+const TGAColor& Model::diffuse(double u, double v)
+{
+    auto& diff = diffusemap;
+    auto diffU = diff.width() * u;
+    auto diffY = diff.height() * v;
+    auto diffColor = diff.get(diffU, diffY);
+    return diffColor;
+}

@@ -183,6 +183,7 @@ void Renderer::DoRender()
 	camera->LookAt({ 0,0,0 });
 	camera->SetViewPortMatrix(0, 0, width, height);
 	camera->SetProjectionMatrix();
+	m_shader->update();
 	for (int i = 0; i < m_model->nfaces(); i++)
 	{
 		vec4 clip_vert[3];
@@ -287,6 +288,12 @@ void TGAOutPutTarget::BeforeOutPot()
 {
 }
 
+
+void IShader::update()
+{
+	this->uniform_M = m_camera->Projection * m_camera->ModelView * m_camera->Rotate;
+	this->uniform_MIT = this->uniform_M.invert_transpose();
+}
 
 void IShader::AddModel(std::shared_ptr<Model> model)
 {

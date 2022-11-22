@@ -100,6 +100,7 @@ class IShader
 public:
 	virtual void vertex(const int faceIndex, const int vertIndex, vec4& position) = 0;
 	virtual bool fragment(const vec3 barycentric, TGAColor& color) = 0;
+	virtual void update();
 	void AddModel(std::shared_ptr<Model> model);
 	void AddLight(std::shared_ptr<Light> light);
 	void AddCamera(std::shared_ptr<Camera> camera);
@@ -111,6 +112,8 @@ protected:
 	std::shared_ptr<Model> m_model;
 	std::shared_ptr<Light> m_light;
 	std::shared_ptr<Camera> m_camera;
+	mat<4, 4> uniform_M;
+	mat<4, 4> uniform_MIT;
 
 };
 
