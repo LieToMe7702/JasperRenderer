@@ -3,13 +3,9 @@
 
 void GouraudShader::vertex(const int faceIndex, const int vertIndex, vec4& position)
 {
-	auto res = m_model->vert(faceIndex, vertIndex);
-	world[vertIndex] = res;
+	IShader::vertex(faceIndex, vertIndex, position);
 	varying_intensity[vertIndex] = std::max(static_cast<double>(0), m_model->normal(faceIndex, vertIndex) * m_light->direction);
-	position = embed<4>(res);
-	position = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate * position;
 
-	varying_uv.set_col(vertIndex, m_model->uv(faceIndex, vertIndex));
 }
 
 bool GouraudShader::fragment(const vec3 barycentric, TGAColor& color)
@@ -24,17 +20,6 @@ bool GouraudShader::fragment(const vec3 barycentric, TGAColor& color)
 	return false;
 }
 
-
-void PhongShader::vertex(const int faceIndex, const int vertIndex, vec4& position)
-{
-	auto res = m_model->vert(faceIndex, vertIndex);
-	world[vertIndex] = res;
-	varying_intensity[vertIndex] = std::max(static_cast<double>(0), m_model->normal(faceIndex, vertIndex) * m_light->direction);
-	position = embed<4>(res);
-	position = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate * position;
-
-	varying_uv.set_col(vertIndex, m_model->uv(faceIndex, vertIndex));
-}
 
 bool PhongShader::fragment(const vec3 barycentric, TGAColor& color)
 {

@@ -98,7 +98,7 @@ private:
 class IShader
 {
 public:
-	virtual void vertex(const int faceIndex, const int vertIndex, vec4& position) = 0;
+	virtual void vertex(const int faceIndex, const int vertIndex, vec4& position);
 	virtual bool fragment(const vec3 barycentric, TGAColor& color) = 0;
 	virtual void update();
 	void AddModel(std::shared_ptr<Model> model);
@@ -114,6 +114,8 @@ protected:
 	std::shared_ptr<Camera> m_camera;
 	mat<4, 4> uniform_M;
 	mat<4, 4> uniform_MIT;
+	vec3 world[3];
+	mat<2, 3> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
 
 };
 

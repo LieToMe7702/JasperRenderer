@@ -289,6 +289,16 @@ void TGAOutPutTarget::BeforeOutPot()
 }
 
 
+void IShader::vertex(const int faceIndex, const int vertIndex, vec4& position)
+{
+	auto res = m_model->vert(faceIndex, vertIndex);
+	world[vertIndex] = res;
+	position = embed<4>(res);
+	position = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate * position;
+
+	varying_uv.set_col(vertIndex, m_model->uv(faceIndex, vertIndex));
+}
+
 void IShader::update()
 {
 	this->uniform_M = m_camera->Projection * m_camera->ModelView * m_camera->Rotate;
