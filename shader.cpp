@@ -25,8 +25,8 @@ bool PhongShader::fragment(const vec3 barycentric, TGAColor& color)
 {
 	vec2 uv = varying_uv * barycentric;
 	auto  diffColor = m_model->diffuse(uv.x, uv.y);
-	vec3 n = proj<3>(uniform_MIT * embed<4>(m_model->normal(uv))).normalize();
-	vec3 l = proj<3>(uniform_M * embed<4>(m_light->direction)).normalize();
+	vec3 n = proj<3>(uniform_rotate_it * embed<4>(m_model->normal(uv))).normalize();
+	vec3 l = proj<3>(embed<4>(m_light->direction)).normalize();
 	auto intensity = std::max(static_cast<double>(0), n * l);
 	diffColor = diffColor * intensity;
 	color = diffColor;

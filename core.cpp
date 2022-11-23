@@ -301,8 +301,9 @@ void IShader::vertex(const int faceIndex, const int vertIndex, vec4& position)
 
 void IShader::update()
 {
-	this->uniform_M = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate;
-	this->uniform_MIT = this->uniform_M.invert_transpose();
+	this->uniform_M = m_camera->Projection * m_camera->ModelView;
+	this->uniform_MIT = uniform_M.invert_transpose();
+	this->uniform_rotate_it = m_camera->Rotate.invert_transpose();
 }
 
 void IShader::AddModel(std::shared_ptr<Model> model)
