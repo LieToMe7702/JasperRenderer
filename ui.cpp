@@ -25,7 +25,7 @@ void Windows::RegisterEvent(int keycode, std::function<void()> callback)
 
 void Windows::SetColor(int x, int y, TGAColor& color)
 {
-	y = screen_h - y - 1;
+	//y = screen_h - y - 1;
 	auto offset = screen_w * 4 * y + 4 * x;
 	screen_fb[offset] = color.bgra[0];
 	screen_fb[offset + 1] = color.bgra[1];

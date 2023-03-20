@@ -22,10 +22,10 @@ public:
 	int screen_keys[512];
 	int screen_w, screen_h, screen_exit = 0;
 	int screen_mx = 0, screen_my = 0, screen_mb = 0;
-	 HWND screen_handle = nullptr;		// Ö÷´°¿Ú HWND
-	 HDC screen_dc = nullptr;			// ÅäÌ×µÄ HDC
+	 HWND screen_handle = nullptr;		// ä¸»çª—å£ HWND
+	 HDC screen_dc = nullptr;			// é…å¥—çš„ HDC
 	 HBITMAP screen_hb = nullptr;		// DIB
-	 HBITMAP screen_ob = nullptr;		// ÀÏµÄ BITMAP
+	 HBITMAP screen_ob = nullptr;		// è€çš„ BITMAP
 	unsigned char* screen_fb = nullptr;		// frame buffer
 	long screen_pitch = 0;
 	std::unordered_map<int, std::vector<std::function<void()>>> callbackMap;

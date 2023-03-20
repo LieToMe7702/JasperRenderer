@@ -21,6 +21,10 @@ public:
 	vec3 up;
 	vec3 target;
 	vec3 rotation;
+	double m_near;
+	double m_far;
+	double m_nearHalfX;
+	double m_nearHalfY;
 	void LookAt(vec3 target);
 	void SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int screenHeight);
 	void SetProjectionMatrix();
@@ -30,6 +34,8 @@ public:
 	mat<4, 4> Viewport;
 	mat<4, 4> Projection;
 	int depth = 2000;
+
+	void SetParam(double near, double far, double nearHalfX, double nearHalfY);
 
 };
 

@@ -42,22 +42,19 @@ void Camera::SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int sc
 
 void Camera::SetProjectionMatrix()
 {
-	auto sub = (this->position - this->target).normalize();
-	auto coeff = sub.norm();
-	if(sub.z < 0)
-	{
-		coeff = -coeff;
-	}
-	if(abs(coeff) < std::numeric_limits<double>::min())
-	{
-		coeff = 0;
-	}
+	double near = this->position.z - this->m_near;
+	double far = this->position.z - this->m_far;
+	double top = this->position.y + this->m_nearHalfY;
+	double bottom = this->position.y - this->m_nearHalfY;
+	double left = this->position.x - this->m_nearHalfX;
+	double right = this->position.x + this->m_nearHalfX;
+	
 	Projection = {
 		{
-			{1, 0, 0, 0},
-			{0, 1, 0, 0},
-			{0, 0, 1, 0},
-			{0, 0, -1 / coeff, 1}
+			{2 * near / (right - left), 0, (left + right)/(left-right), 0},
+			{0, 2*near/(top-bottom), (bottom + top)/(bottom - top), 0},
+			{0, 0, (far+near)/(far-near), 2*near*far/(near-far)},
+			{0, 0, 1, 0}
 		}
 	};
 
@@ -87,6 +84,14 @@ void Camera::SetRotate()
 	m[3][0] = m[3][1] = m[3][2] = 0.0f;
 	m[0][3] = m[1][3] = m[2][3] = 0.0f;
 	m[3][3] = 1.0f;
+}
+
+void Camera::SetParam(double near, double far, double nearHalfX, double nearHalfY)
+{
+	this->m_far = far;
+	this->m_near = near;
+	this->m_nearHalfX = nearHalfX;
+	this->m_nearHalfY = nearHalfY;
 }
 
 ZBuffer::ZBuffer(int width, int height)
@@ -264,6 +269,7 @@ void Renderer::DrawTriangle(vec4 vecs[3])
 
 void TGAOutPutTarget::SetColor(int x, int y, TGAColor& color)
 {
+	y = m_image->height() - y - 1;
 	m_image->set(x, y, color);
 }
 
