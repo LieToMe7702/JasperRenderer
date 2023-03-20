@@ -122,7 +122,6 @@ protected:
 	mat<4, 4> uniform_MIT;
 	vec3 world[3];
 	mat<2, 3> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
-	mat<4, 4> uniform_rotate_it;
 
 };
 

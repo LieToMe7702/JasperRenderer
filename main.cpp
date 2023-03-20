@@ -49,7 +49,7 @@ int main(void)
 
 	auto ModelPath = "obj/african_head/african_head.obj";
 	std::shared_ptr<Camera> camera(new Camera());
-	//std::shared_ptr<IOutPutTarget> outPutTarget(new TGAOutPutTarget());
+	////std::shared_ptr<IOutPutTarget> outPutTarget(new TGAOutPutTarget());
 	std::shared_ptr<Windows> outPutTarget(new Windows());
 	RegisterKeyEvent(camera, outPutTarget);
 	std::shared_ptr<Model> model(new Model(ModelPath));

@@ -309,7 +309,6 @@ void IShader::update()
 {
 	this->uniform_M = m_camera->Projection * m_camera->ModelView;
 	this->uniform_MIT = uniform_M.invert_transpose();
-	this->uniform_rotate_it = m_camera->Rotate.invert_transpose();
 }
 
 void IShader::AddModel(std::shared_ptr<Model> model)

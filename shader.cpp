@@ -4,13 +4,15 @@
 void GouraudShader::vertex(const int faceIndex, const int vertIndex, vec4& position)
 {
 	IShader::vertex(faceIndex, vertIndex, position);
-	varying_intensity[vertIndex] = std::max(static_cast<double>(0), m_model->normal(faceIndex, vertIndex) * m_light->direction);
+	vec3 n = proj<3>(m_camera->Rotate * embed<4>(m_model->normal(faceIndex, vertIndex))).normalize();
+	vec3 l = proj<3>(embed<4>(m_light->direction)).normalize();
+	auto intensity = std::max(static_cast<double>(0), n * l);
+	varying_intensity[vertIndex] = intensity;
 
 }
 
 bool GouraudShader::fragment(const vec3 barycentric, TGAColor& color)
 {
-	auto& diff = m_model->diffuse();
 	auto intensity = varying_intensity * barycentric;
 	vec2 uv = varying_uv * barycentric;
 	auto  diffColor = m_model->diffuse(uv.x, uv.y);
@@ -19,14 +21,19 @@ bool GouraudShader::fragment(const vec3 barycentric, TGAColor& color)
 
 	return false;
 }
-
+void PhongShader::vertex(const int faceIndex, const int vertIndex, vec4& position)
+{
+	IShader::vertex(faceIndex, vertIndex, position);
+	auto n = m_model->normal(faceIndex, vertIndex);
+	varying_nrm.set_col(vertIndex, proj<3>((m_camera->ModelView * m_camera->Rotate).invert_transpose()*embed<4>(n)));
+}
 
 bool PhongShader::fragment(const vec3 barycentric, TGAColor& color)
 {
 	vec2 uv = varying_uv * barycentric;
 	auto  diffColor = m_model->diffuse(uv.x, uv.y);
-	vec3 n = proj<3>(uniform_rotate_it * embed<4>(m_model->normal(uv))).normalize();
-	vec3 l = proj<3>(embed<4>(m_light->direction)).normalize();
+	auto l = m_light->direction.normalize();
+	auto n = varying_nrm * barycentric;
 	auto intensity = std::max(static_cast<double>(0), n * l);
 	diffColor = diffColor * intensity;
 	color = diffColor;
