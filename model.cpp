@@ -59,7 +59,8 @@ Model::Model(const std::string filename)
     in.close();
      std::cerr << "# v# " << nverts() << " f# " << nfaces() << " vt# " << tex_coord.size() << " vn# " << norms.size() << std::endl;
     load_texture(filename, "_diffuse.tga", diffusemap);
-    load_texture(filename, "_nm_tangent.tga", normalmap);
+    load_texture(filename, "_nm.tga", normalmap);
+    load_texture(filename, "_nm_tangent.tga", normal_tangent_map);
     load_texture(filename, "_spec.tga", specularmap);
 }
 int Model::nverts() const {
@@ -96,6 +97,12 @@ vec3 Model::normal(const int iface, const int nthvert) const
 
 vec3 Model::normal(const vec2& uvf) const {
     TGAColor c = normalmap.get(uvf[0] * normalmap.width(), uvf[1] * normalmap.height());
+    return vec3{ (double)c[2],(double)c[1],(double)c[0] }*2. / 255. - vec3{ 1,1,1 };
+}
+
+vec3 Model::normal_tangent(const vec2& uvf) const
+{
+    TGAColor c = normal_tangent_map.get(uvf[0] * normal_tangent_map.width(), uvf[1] * normal_tangent_map.height());
     return vec3{ (double)c[2],(double)c[1],(double)c[0] }*2. / 255. - vec3{ 1,1,1 };
 }
 

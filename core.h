@@ -30,6 +30,7 @@ public:
 	void SetProjectionMatrix();
 	void SetRotate();
 	mat<4, 4> Rotate;
+	mat<4, 4> RotateIt;
 	mat<4, 4> ModelView;
 	mat<4, 4> Viewport;
 	mat<4, 4> Projection;

@@ -84,6 +84,7 @@ void Camera::SetRotate()
 	m[3][0] = m[3][1] = m[3][2] = 0.0f;
 	m[0][3] = m[1][3] = m[2][3] = 0.0f;
 	m[3][3] = 1.0f;
+	RotateIt = Rotate.invert_transpose();
 }
 
 void Camera::SetParam(double near, double far, double nearHalfX, double nearHalfY)
