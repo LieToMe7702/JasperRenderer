@@ -55,7 +55,8 @@ int main(void)
 	std::shared_ptr<Model> model(new Model(ModelPath));
 	//std::shared_ptr<IShader> shader(new GouraudShader());
 	//std::shared_ptr<IShader> shader(new PhongShader());
-	std::shared_ptr<IShader> shader(new NormalMappingShader());
+	//std::shared_ptr<IShader> shader(new NormalMappingShader());
+	std::shared_ptr<IShader> shader(new NormalTangentMappingShader());
 	std::shared_ptr<Light> light(new Light());
 	light->direction = { 0,0,1 };
 	light->direction.normalize();
