@@ -114,3 +114,12 @@ const TGAColor& Model::diffuse(double u, double v)
     auto diffColor = diff.get(diffU, diffY);
     return diffColor;
 }
+
+const TGAColor& Model::spec(double u, double v)
+{
+    auto& diff = specularmap;
+    auto diffU = diff.width() * u;
+    auto diffY = diff.height() * v;
+    auto diffColor = diff.get(diffU, diffY);
+    return diffColor;
+}

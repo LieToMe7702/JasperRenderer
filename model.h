@@ -31,5 +31,6 @@ public:
     const TGAImage& diffuse()  const { return diffusemap; }
     const TGAImage& specular() const { return specularmap; }
     const TGAColor& diffuse(double u, double v);
+    const TGAColor& spec(double u, double v);
 
 };

@@ -35,3 +35,12 @@ private:
 	mat<3, 3> varying_nrm; // normal per vertex to be interpolated by FS
 };
 
+class NormalTangentMappingWithPhongReflectionShader : public IShader
+{
+public:
+	void vertex(const int faceIndex, const int vertIndex, vec4& position) override;
+	bool fragment(const vec3 barycentric, TGAColor& color) override;
+private:
+	mat<3, 3> varying_nrm; // normal per vertex to be interpolated by FS
+};
+
