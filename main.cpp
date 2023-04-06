@@ -8,6 +8,8 @@
 void Move(const std::shared_ptr<Camera>& camera, float x, float y, float z)
 {
 	camera->position = camera->position + vec3{ x, y, z };
+	camera->LookAt(camera->position);
+	camera->SetProjectionMatrix();
 }
 
 void Loop(double &x, double i)
@@ -60,11 +62,12 @@ int main(void)
 	std::shared_ptr<IShader> shader(new NormalTangentMappingWithPhongReflectionShader());
 	std::shared_ptr<IShader> shadowShader(new DepthShader());
 	std::shared_ptr<Light> light(new Light());
-	light->direction = { 0,0,1 };
+	light->direction = { 0,0,15 };
 	light->direction.normalize();
-	camera->position = { 0,0,5 };
+	camera->position = {0,0,5};
+	camera->center = { 0,0,0 };
 	camera->up = { 0,1,0 };
-	camera->SetParam(1,10,2,2);
+	camera->SetParam(2,40,1,1);
 
 	renderer->SetOutPut(outPutTarget);
 	renderer->AddModel(model);

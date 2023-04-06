@@ -16,10 +16,10 @@ public:
 class Camera
 {
 public:
-	vec3 position;
+	vec3 center;
 	vec3 forward;
 	vec3 up;
-	vec3 target;
+	vec3 position;
 	vec3 rotation;
 	double m_near;
 	double m_far;
@@ -35,7 +35,7 @@ public:
 	mat<4, 4> Viewport;
 	mat<4, 4> Projection;
 	mat<4, 4> M;
-	int depth = 2000;
+	int depth = 256;
 
 	void SetParam(double near, double far, double nearHalfX, double nearHalfY);
 

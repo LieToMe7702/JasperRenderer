@@ -3,7 +3,7 @@
 
 void Camera::LookAt(vec3 target)
 {
-	auto z = (position - target).normalize();
+	auto z = (center - target).normalize();
 	//std::cout << "x="<<z[0] << "y="<<z[1]<< "z=" << z[2] << std::endl;
 	auto x = cross(up, z).normalize();
 	auto y = cross(z, x).normalize();
@@ -18,14 +18,14 @@ void Camera::LookAt(vec3 target)
 	};
 	mat<4, 4> Tr{
 		{
-			{1, 0, 0, -position.x},
-			{0, 1, 0, -position.y},
-			{0, 0, 1, -position.z},
+			{1, 0, 0, -target.x},
+			{0, 1, 0, -target.y},
+			{0, 0, 1, -target.z},
 			{0, 0, 0, 1}
 		}
 	};
 	ModelView = Minv * Tr;
-	this->target = target;
+	this->position = target;
 }
 
 void Camera::SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int screenHeight)
@@ -42,19 +42,19 @@ void Camera::SetViewPortMatrix(int xOffset, int yOffset, int screenWidth, int sc
 
 void Camera::SetProjectionMatrix()
 {
-	double near = this->position.z - this->m_near;
-	double far = this->position.z - this->m_far;
-	double top = this->position.y + this->m_nearHalfY;
-	double bottom = this->position.y - this->m_nearHalfY;
-	double left = this->position.x - this->m_nearHalfX;
-	double right = this->position.x + this->m_nearHalfX;
-	
+	 double near = this->m_near;
+	 double far =  this->m_far;
+	 double top = this->position.y + this->m_nearHalfY;
+	 double bottom = this->position.y - this->m_nearHalfY;
+	 double left = this->position.x - this->m_nearHalfX;
+	 double right = this->position.x + this->m_nearHalfX;
+
 	Projection = {
 		{
 			{2 * near / (right - left), 0, (left + right)/(left-right), 0},
-			{0, 2*near/(top-bottom), (bottom + top)/(bottom - top), 0},
-			{0, 0, (far+near)/(far-near), 2*near*far/(near-far)},
-			{0, 0, 1, 0}
+			{0, 2*near/(top-bottom), (bottom + top)/(top - bottom), 0},
+			{0, 0, (far+near)/(near-far), 2*near*far/(near-far)},
+			{0, 0, -1, 0}
 		}
 	};
 
@@ -205,18 +205,19 @@ void Renderer::DoRender()
 		m_outPut->BeforeOutPot();
 	}
 	auto camera = m_camera;
+	auto origTarget = camera->position;
 	auto height = m_screenY;
 	auto width = m_screenX;
 	camera->SetRotate();
 	camera->SetViewPortMatrix(0, 0, width, height);
+	camera->LookAt(  m_light->direction);
 	camera->SetProjectionMatrix();
-	camera->LookAt(  m_camera->position + m_light->direction);
 	camera->M = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate;
 	DoShadow();
 	//camera->SetRotate();
-	camera->LookAt({ 0,0,0 });
+	camera->LookAt(origTarget);
 	//camera->SetViewPortMatrix(0, 0, width, height);
-	//camera->SetProjectionMatrix();
+	camera->SetProjectionMatrix();
 	DoDraw();
 
 	if (m_outPut != nullptr)

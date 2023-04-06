@@ -94,8 +94,13 @@ bool NormalTangentMappingWithPhongReflectionShader::fragment(const vec3 barycent
 {
 	auto shadowPoint = uniform_MShadow * embed<4>(varying_tri * barycentric);
 	shadowPoint = shadowPoint / shadowPoint[3];
-	auto shadowVal = 0.3 + 0.7 * (m_render->m_shadowBuffer->GetDepth(shadowPoint[0],shadowPoint[1]) < shadowPoint[2] + 5);
-	 shadowVal = 0.3 + 0.7 * (m_render->m_shadowBuffer->GetDepth(shadowPoint[0],shadowPoint[1]) > shadowPoint[2] + 5);
+	int x = shadowPoint[0];
+	int y = shadowPoint[1];
+	auto shadowVal = 1;
+	if(x >= 0 && x< m_render->m_screenX && y>= 0 && y < m_render->m_screenY)
+	{
+		shadowVal = 0.3 + 0.7 * (m_render->m_shadowBuffer->GetDepth(x,y) < shadowPoint[2] + 15 );
+	}
 	vec3 bn = (varying_nrm * barycentric).normalize(); // per-vertex normal interpolation
 	vec2 uv = varying_uv * barycentric;
 	auto diffColor = m_model->diffuse(uv.x, uv.y);
