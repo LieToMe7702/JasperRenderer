@@ -87,10 +87,15 @@ void NormalTangentMappingWithPhongReflectionShader::vertex(const int faceIndex, 
 	IShader::vertex(faceIndex, vertIndex, position);
 	auto n = m_model->normal(faceIndex, vertIndex);
 	varying_nrm.set_col(vertIndex, proj<3>(m_camera->RotateIt *embed<4>(n, 0)));
+	varying_tri.set_col(vertIndex,proj<3>(position/position[3]));
 }
 
 bool NormalTangentMappingWithPhongReflectionShader::fragment(const vec3 barycentric, TGAColor& color)
 {
+	auto shadowPoint = uniform_MShadow * embed<4>(varying_tri * barycentric);
+	shadowPoint = shadowPoint / shadowPoint[3];
+	auto shadowVal = 0.3 + 0.7 * (m_render->m_shadowBuffer->GetDepth(shadowPoint[0],shadowPoint[1]) < shadowPoint[2] + 5);
+	 shadowVal = 0.3 + 0.7 * (m_render->m_shadowBuffer->GetDepth(shadowPoint[0],shadowPoint[1]) > shadowPoint[2] + 5);
 	vec3 bn = (varying_nrm * barycentric).normalize(); // per-vertex normal interpolation
 	vec2 uv = varying_uv * barycentric;
 	auto diffColor = m_model->diffuse(uv.x, uv.y);
@@ -109,9 +114,22 @@ bool NormalTangentMappingWithPhongReflectionShader::fragment(const vec3 barycent
 	auto intensity = std::max(static_cast<double>(0), n * l);
 	for(int i = 0; i < 3; i++)
 	{
-		diffColor[i] = std::min<float>(5 + diffColor[i] * (0.7 * intensity + 0.2 * spec), 255);
+		diffColor[i] = std::min<float>(15 + diffColor[i] * shadowVal * (0.7 * intensity + 0.2 * spec), 255);
 	}
 	color = diffColor;
+	return false;
+}
+
+void DepthShader::vertex(const int faceIndex, const int vertIndex, vec4& position)
+{
+	IShader::vertex(faceIndex, vertIndex, position);
+	varying_tri.set_col(vertIndex,proj<3>(position/position[3]));
+}
+
+bool DepthShader::fragment(const vec3 barycentric, TGAColor& color)
+{
+	auto p = varying_tri*barycentric;
+	color = TGAColor(255,255,255) * (p.z / m_camera->depth);
 	return false;
 }
 

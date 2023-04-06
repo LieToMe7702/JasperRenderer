@@ -45,7 +45,7 @@ int main(void)
 {
 	auto width = 800;
 	auto height = 800;
-	Renderer renderer(width, height);
+	std::shared_ptr<Renderer> renderer(new Renderer(width, height));
 
 	auto ModelPath = "obj/african_head/african_head.obj";
 	std::shared_ptr<Camera> camera(new Camera());
@@ -58,6 +58,7 @@ int main(void)
 	//std::shared_ptr<IShader> shader(new NormalMappingShader());
 	//std::shared_ptr<IShader> shader(new NormalTangentMappingShader());
 	std::shared_ptr<IShader> shader(new NormalTangentMappingWithPhongReflectionShader());
+	std::shared_ptr<IShader> shadowShader(new DepthShader());
 	std::shared_ptr<Light> light(new Light());
 	light->direction = { 0,0,1 };
 	light->direction.normalize();
@@ -65,11 +66,12 @@ int main(void)
 	camera->up = { 0,1,0 };
 	camera->SetParam(1,10,2,2);
 
-	renderer.SetOutPut(outPutTarget);
-	renderer.AddModel(model);
-	renderer.SetCamera(camera);
-	renderer.AddLight(light);
-	renderer.AddShader(shader);
-	renderer.DoRender(true);
+	renderer->SetOutPut(outPutTarget);
+	renderer->AddModel(model);
+	renderer->SetCamera(camera);
+	renderer->AddLight(light);
+	renderer->AddShader(shader);
+	renderer->AddShadowShader(shadowShader);
+	renderer->DoRender(true);
 	//screenOutPutTarget->Init(width, height, "test");
 }

@@ -34,6 +34,7 @@ public:
 	mat<4, 4> ModelView;
 	mat<4, 4> Viewport;
 	mat<4, 4> Projection;
+	mat<4, 4> M;
 	int depth = 2000;
 
 	void SetParam(double near, double far, double nearHalfX, double nearHalfY);
@@ -63,26 +64,31 @@ public:
 	virtual bool NeedClose() = 0;
 };
 
-class Renderer
+class Renderer : public std::enable_shared_from_this<Renderer>
 {
 public:
 	void SetCamera(std::shared_ptr<Camera> camera);
 	void SetOutPut(std::shared_ptr<IOutPutTarget> outPutDevice);
 	void AddModel(std::shared_ptr<Model> model);
 	void AddShader(std::shared_ptr<IShader> shader);
+	void AddShadowShader(std::shared_ptr<IShader> shader);
 	void AddLight(std::shared_ptr<Light> light);
 	void DoRender(bool loop);
+	void DoShadow();
 	Renderer(int screenX, int screenY);
-private:
 	std::shared_ptr<Model> m_model;
 	std::shared_ptr<IOutPutTarget> m_outPut;
 	std::shared_ptr<ZBuffer> m_zbuffer;
+	std::shared_ptr<ZBuffer> m_shadowBuffer;
 	std::shared_ptr<Camera> m_camera;
 	std::shared_ptr<IShader> m_shader;
+	std::shared_ptr<IShader> m_shadowShader;
 	std::shared_ptr<Light> m_light;
 	int m_screenX;
 	int m_screenY;
 	void DrawTriangle(vec4 vecs[3]);
+	void DrawTriangle(vec4 vecs[3], std::shared_ptr<IShader> shader, std::shared_ptr<ZBuffer> buffer, std::shared_ptr<IOutPutTarget> output);
+	void DoDraw();
 	void DoRender();
 	clock_t tick_time;
 	int frame;
@@ -111,6 +117,7 @@ public:
 	void AddModel(std::shared_ptr<Model> model);
 	void AddLight(std::shared_ptr<Light> light);
 	void AddCamera(std::shared_ptr<Camera> camera);
+	void AddRender(std::shared_ptr<Renderer> renderer);
 
 	static TGAColor sample2D(const TGAImage& img, vec2& uvf) {
 		return img.get(uvf[0] * img.width(), uvf[1] * img.height());
@@ -119,8 +126,10 @@ protected:
 	std::shared_ptr<Model> m_model;
 	std::shared_ptr<Light> m_light;
 	std::shared_ptr<Camera> m_camera;
+	std::shared_ptr<Renderer> m_render;
 	mat<4, 4> uniform_M;
 	mat<4, 4> uniform_MIT;
+	mat<4, 4> uniform_MShadow;
 	vec3 world[3];
 	mat<2, 3> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
 

@@ -139,9 +139,13 @@ void Renderer::AddModel(std::shared_ptr<Model> model)
 void Renderer::AddShader(std::shared_ptr<IShader> shader)
 {
 	m_shader = shader;
-	m_shader->AddModel(m_model);
-	m_shader->AddLight(m_light);
-	m_shader->AddCamera(m_camera);
+	m_shader->AddRender(shared_from_this());
+}
+
+void Renderer::AddShadowShader(std::shared_ptr<IShader> shader)
+{
+	m_shadowShader = shader;
+	m_shadowShader->AddRender(shared_from_this());
 }
 
 void Renderer::AddLight(std::shared_ptr<Light> light)
@@ -164,6 +168,23 @@ void Renderer::DoRender(bool loop)
 
 }
 
+void Renderer::DoShadow()
+{
+	if(m_shadowShader != nullptr)
+	{
+		m_shadowShader->update();
+		for (int i = 0; i < m_model->nfaces(); i++)
+		{
+			vec4 clip_vert[3];
+			for (int j = 0; j < 3; j++)
+			{
+				m_shadowShader->vertex(i, j, clip_vert[j]);
+			}
+			DrawTriangle(clip_vert,m_shadowShader, m_shadowBuffer,nullptr);
+		}
+	}
+}
+
 void Renderer::DoRender()
 {
 	if (tick_time == 0)
@@ -177,6 +198,7 @@ void Renderer::DoRender()
 		std::cout << frame << std::endl;
 		frame = 0;
 	}
+	m_shadowBuffer->Clear();
 	m_zbuffer->Clear();
 	if (m_outPut != nullptr)
 	{
@@ -186,19 +208,16 @@ void Renderer::DoRender()
 	auto height = m_screenY;
 	auto width = m_screenX;
 	camera->SetRotate();
-	camera->LookAt({ 0,0,0 });
 	camera->SetViewPortMatrix(0, 0, width, height);
 	camera->SetProjectionMatrix();
-	m_shader->update();
-	for (int i = 0; i < m_model->nfaces(); i++)
-	{
-		vec4 clip_vert[3];
-		for (int j = 0; j < 3; j++)
-		{
-			m_shader->vertex(i, j, clip_vert[j]);
-		}
-		DrawTriangle(clip_vert);
-	}
+	camera->LookAt(  m_camera->position + m_light->direction);
+	camera->M = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate;
+	DoShadow();
+	//camera->SetRotate();
+	camera->LookAt({ 0,0,0 });
+	//camera->SetViewPortMatrix(0, 0, width, height);
+	//camera->SetProjectionMatrix();
+	DoDraw();
 
 	if (m_outPut != nullptr)
 	{
@@ -212,15 +231,21 @@ Renderer::Renderer(int screenX, int screenY)
 	m_screenX = screenX;
 	m_screenY = screenY;
 	m_zbuffer = std::make_shared<ZBuffer>(m_screenX, m_screenY);
+	m_shadowBuffer = std::make_shared<ZBuffer>(m_screenX, m_screenY);
 }
 
 void Renderer::DrawTriangle(vec4 vecs[3])
+{
+	DrawTriangle(vecs, m_shader ,m_zbuffer, m_outPut);
+}
+
+void Renderer::DrawTriangle(vec4 vecs[3], std::shared_ptr<IShader> shader, std::shared_ptr<ZBuffer> buffer, std::shared_ptr<IOutPutTarget> output)
 {
 	auto width = m_screenX;
 	auto height = m_screenY;
 	vec2 box_min(width - 1, height - 1);
 	vec2 box_max(0, 0);
-	auto z_buffer = m_zbuffer;
+	auto z_buffer = buffer;
 
 
 	for (int i = 0; i < 3; i++)
@@ -257,13 +282,30 @@ void Renderer::DrawTriangle(vec4 vecs[3])
 			if(z_buffer->GetDepth(p.x,p.y) < depth)
 			{
 				TGAColor color;
-				if(!m_shader->fragment(res, color))
+				if(!shader->fragment(res, color))
 				{
 					z_buffer->SetDepth(p.x, p.y, depth);
-					m_outPut->SetColor(p.x, p.y, color);
+					if(output != nullptr)
+					{
+						output->SetColor(p.x, p.y, color);
+					}
 				}
 			}
 		}
+	}
+}
+
+void Renderer::DoDraw()
+{
+	m_shader->update();
+	for (int i = 0; i < m_model->nfaces(); i++)
+	{
+		vec4 clip_vert[3];
+		for (int j = 0; j < 3; j++)
+		{
+			m_shader->vertex(i, j, clip_vert[j]);
+		}
+		DrawTriangle(clip_vert);
 	}
 }
 
@@ -310,6 +352,8 @@ void IShader::update()
 {
 	this->uniform_M = m_camera->Projection * m_camera->ModelView;
 	this->uniform_MIT = uniform_M.invert_transpose();
+	auto m = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate;
+	this->uniform_MShadow = m_camera->M * m.invert();
 }
 
 void IShader::AddModel(std::shared_ptr<Model> model)
@@ -325,4 +369,12 @@ void IShader::AddLight(std::shared_ptr<Light> light)
 void IShader::AddCamera(std::shared_ptr<Camera> camera)
 {
 	m_camera = camera;
+}
+
+void IShader::AddRender(std::shared_ptr<Renderer> renderer)
+{
+	m_render = renderer;
+	AddModel(renderer->m_model);
+	AddLight(renderer->m_light);
+	AddCamera(renderer->m_camera);
 }
