@@ -34,6 +34,7 @@ public:
 	mat<4, 4> ModelView;
 	mat<4, 4> Viewport;
 	mat<4, 4> Projection;
+	mat<4, 4> ProjectionOtho;
 	mat<4, 4> M;
 	int depth = 256;
 
@@ -132,6 +133,6 @@ protected:
 	mat<4, 4> uniform_MShadow;
 	vec3 world[3];
 	mat<2, 3> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
-
+	mat<3, 3> varying_tri; 
 };
 

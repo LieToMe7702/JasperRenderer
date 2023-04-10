@@ -48,7 +48,7 @@ bool NormalMappingShader::fragment(const vec3 barycentric, TGAColor& color)
 	auto l = m_light->direction.normalize();
 	auto n = proj<3>(m_camera->RotateIt * embed<4>(m_model->normal(uv),0)).normalize();
 	auto intensity = std::max(static_cast<double>(0), n * l);
-	diffColor = diffColor * intensity;
+	diffColor = diffColor * intensity ;
 	color = diffColor;
 
 	return false;
@@ -58,7 +58,7 @@ void NormalTangentMappingShader::vertex(const int faceIndex, const int vertIndex
 {
 	IShader::vertex(faceIndex, vertIndex, position);
 	auto n = m_model->normal(faceIndex, vertIndex);
-	varying_nrm.set_col(vertIndex, proj<3>(m_camera->RotateIt *embed<4>(n, 0)));
+	varying_nrm.set_col(vertIndex, n.normalize());
 }
 
 bool NormalTangentMappingShader::fragment(const vec3 barycentric, TGAColor& color)
@@ -86,7 +86,7 @@ void NormalTangentMappingWithPhongReflectionShader::vertex(const int faceIndex, 
 {
 	IShader::vertex(faceIndex, vertIndex, position);
 	auto n = m_model->normal(faceIndex, vertIndex);
-	varying_nrm.set_col(vertIndex, proj<3>(m_camera->RotateIt *embed<4>(n, 0)));
+	varying_nrm.set_col(vertIndex, n.normalize());
 	varying_tri.set_col(vertIndex,proj<3>(position/position[3]));
 }
 
@@ -96,11 +96,12 @@ bool NormalTangentMappingWithPhongReflectionShader::fragment(const vec3 barycent
 	shadowPoint = shadowPoint / shadowPoint[3];
 	int x = shadowPoint[0];
 	int y = shadowPoint[1];
-	auto shadowVal = 1;
+	auto shadowVal = 0.3;
 	if(x >= 0 && x< m_render->m_screenX && y>= 0 && y < m_render->m_screenY)
 	{
-		shadowVal = 0.3 + 0.7 * (m_render->m_shadowBuffer->GetDepth(x,y) < shadowPoint[2] + 15 );
+		shadowVal = 0.3 + 0.7 * (m_render->m_shadowBuffer->GetDepth(x,y) < shadowPoint[2] + 5 );
 	}
+	
 	vec3 bn = (varying_nrm * barycentric).normalize(); // per-vertex normal interpolation
 	vec2 uv = varying_uv * barycentric;
 	auto diffColor = m_model->diffuse(uv.x, uv.y);
@@ -119,7 +120,7 @@ bool NormalTangentMappingWithPhongReflectionShader::fragment(const vec3 barycent
 	auto intensity = std::max(static_cast<double>(0), n * l);
 	for(int i = 0; i < 3; i++)
 	{
-		diffColor[i] = std::min<float>(15 + diffColor[i] * shadowVal * (0.7 * intensity + 0.2 * spec), 255);
+		diffColor[i] = std::min<float>(10 + diffColor[i] * shadowVal * (0.8 * intensity + 0.1 * spec), 255);
 	}
 	color = diffColor;
 	return false;

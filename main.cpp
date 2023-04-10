@@ -62,7 +62,7 @@ int main(void)
 	std::shared_ptr<IShader> shader(new NormalTangentMappingWithPhongReflectionShader());
 	std::shared_ptr<IShader> shadowShader(new DepthShader());
 	std::shared_ptr<Light> light(new Light());
-	light->direction = { 0,0,15 };
+	light->direction = { -1,0,1 };
 	light->direction.normalize();
 	camera->position = {0,0,5};
 	camera->center = { 0,0,0 };

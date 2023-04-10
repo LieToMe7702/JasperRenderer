@@ -58,6 +58,23 @@ void Camera::SetProjectionMatrix()
 		}
 	};
 
+	 mat<4, 4> matrix_scale = {
+		 {
+			 {2 / (right - left), 0, 0, 0},
+			 {0, 2 / (top - bottom), 0, 0},
+			 {0, 0, 2 / (near - far), 0},
+			 {0, 0, 0, 1}
+		 }
+	 };
+	 mat<4, 4> matrix_tran = {
+		 {
+			 {1, 0, 0, -(left + right) / 2},
+			 {0, 1, 0, -(bottom + top) / 2},
+			 {0, 0, 1, -(near + far) / 2},
+			 {0, 0, 0, 1}
+		 }
+	 };
+	ProjectionOtho = matrix_scale * matrix_tran;
 }
 
 void Camera::SetRotate()
@@ -212,6 +229,7 @@ void Renderer::DoRender()
 	camera->SetViewPortMatrix(0, 0, width, height);
 	camera->LookAt(  m_light->direction);
 	camera->SetProjectionMatrix();
+	m_camera->Projection = m_camera->ProjectionOtho;
 	camera->M = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate;
 	DoShadow();
 	//camera->SetRotate();
@@ -347,6 +365,7 @@ void IShader::vertex(const int faceIndex, const int vertIndex, vec4& position)
 	position = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate * position;
 
 	varying_uv.set_col(vertIndex, m_model->uv(faceIndex, vertIndex));
+	varying_tri.set_col(vertIndex,proj<3>(position/position[3]));
 }
 
 void IShader::update()
