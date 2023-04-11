@@ -44,9 +44,20 @@ private:
 	mat<3, 3> varying_nrm; // normal per vertex to be interpolated by FS
 };
 
+class NormalTangentMappingWithPhongReflectionAndShadowMapShader : public IShader
+{
+public:
+	void vertex(const int faceIndex, const int vertIndex, vec4& position) override;
+	bool fragment(const vec3 barycentric, TGAColor& color) override;
+	void update() override;
+private:
+	mat<3, 3> varying_nrm; // normal per vertex to be interpolated by FS
+};
+
 class DepthShader : public IShader
 {
 public:
+	void update() override;
 	void vertex(const int faceIndex, const int vertIndex, vec4& position) override;
 	bool fragment(const vec3 barycentric, TGAColor& color) override;
 private:

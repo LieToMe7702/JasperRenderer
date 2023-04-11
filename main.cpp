@@ -50,6 +50,8 @@ int main(void)
 	std::shared_ptr<Renderer> renderer(new Renderer(width, height));
 
 	auto ModelPath = "obj/african_head/african_head.obj";
+	//ModelPath = "obj/floor.obj";
+	//ModelPath = "obj/diablo3_pose/diablo3_pose.obj";
 	std::shared_ptr<Camera> camera(new Camera());
 	////std::shared_ptr<IOutPutTarget> outPutTarget(new TGAOutPutTarget());
 	std::shared_ptr<Windows> outPutTarget(new Windows());
@@ -59,7 +61,8 @@ int main(void)
 	//std::shared_ptr<IShader> shader(new PhongShader());
 	//std::shared_ptr<IShader> shader(new NormalMappingShader());
 	//std::shared_ptr<IShader> shader(new NormalTangentMappingShader());
-	std::shared_ptr<IShader> shader(new NormalTangentMappingWithPhongReflectionShader());
+	//std::shared_ptr<IShader> shader(new NormalTangentMappingWithPhongReflectionShader());
+	std::shared_ptr<IShader> shader(new NormalTangentMappingWithPhongReflectionAndShadowMapShader());
 	std::shared_ptr<IShader> shadowShader(new DepthShader());
 	std::shared_ptr<Light> light(new Light());
 	light->direction = { -1,0,1 };
@@ -73,8 +76,8 @@ int main(void)
 	renderer->AddModel(model);
 	renderer->SetCamera(camera);
 	renderer->AddLight(light);
+	renderer->AddShader(shadowShader);
 	renderer->AddShader(shader);
-	renderer->AddShadowShader(shadowShader);
 	renderer->DoRender(true);
 	//screenOutPutTarget->Init(width, height, "test");
 }

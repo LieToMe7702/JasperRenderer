@@ -35,7 +35,7 @@ public:
 	mat<4, 4> Viewport;
 	mat<4, 4> Projection;
 	mat<4, 4> ProjectionOtho;
-	mat<4, 4> M;
+	mat<4, 4> M_Shadow;
 	int depth = 256;
 
 	void SetParam(double near, double far, double nearHalfX, double nearHalfY);
@@ -72,22 +72,20 @@ public:
 	void SetOutPut(std::shared_ptr<IOutPutTarget> outPutDevice);
 	void AddModel(std::shared_ptr<Model> model);
 	void AddShader(std::shared_ptr<IShader> shader);
-	void AddShadowShader(std::shared_ptr<IShader> shader);
 	void AddLight(std::shared_ptr<Light> light);
 	void DoRender(bool loop);
-	void DoShadow();
 	Renderer(int screenX, int screenY);
 	std::shared_ptr<Model> m_model;
 	std::shared_ptr<IOutPutTarget> m_outPut;
 	std::shared_ptr<ZBuffer> m_zbuffer;
 	std::shared_ptr<ZBuffer> m_shadowBuffer;
+	std::shared_ptr<ZBuffer> m_curBuffer;
 	std::shared_ptr<Camera> m_camera;
-	std::shared_ptr<IShader> m_shader;
-	std::shared_ptr<IShader> m_shadowShader;
+	std::vector<std::shared_ptr<IShader>> m_shaderList;
 	std::shared_ptr<Light> m_light;
 	int m_screenX;
 	int m_screenY;
-	void DrawTriangle(vec4 vecs[3]);
+	bool m_useOutPut;
 	void DrawTriangle(vec4 vecs[3], std::shared_ptr<IShader> shader, std::shared_ptr<ZBuffer> buffer, std::shared_ptr<IOutPutTarget> output);
 	void DoDraw();
 	void DoRender();

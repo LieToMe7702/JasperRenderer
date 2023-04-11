@@ -155,14 +155,8 @@ void Renderer::AddModel(std::shared_ptr<Model> model)
 
 void Renderer::AddShader(std::shared_ptr<IShader> shader)
 {
-	m_shader = shader;
-	m_shader->AddRender(shared_from_this());
-}
-
-void Renderer::AddShadowShader(std::shared_ptr<IShader> shader)
-{
-	m_shadowShader = shader;
-	m_shadowShader->AddRender(shared_from_this());
+	m_shaderList.push_back(shader);
+	shader->AddRender(shared_from_this());
 }
 
 void Renderer::AddLight(std::shared_ptr<Light> light)
@@ -181,25 +175,7 @@ void Renderer::DoRender(bool loop)
 	{
 		DoRender();
 	} while (!m_outPut->NeedClose());
-
-
-}
-
-void Renderer::DoShadow()
-{
-	if(m_shadowShader != nullptr)
-	{
-		m_shadowShader->update();
-		for (int i = 0; i < m_model->nfaces(); i++)
-		{
-			vec4 clip_vert[3];
-			for (int j = 0; j < 3; j++)
-			{
-				m_shadowShader->vertex(i, j, clip_vert[j]);
-			}
-			DrawTriangle(clip_vert,m_shadowShader, m_shadowBuffer,nullptr);
-		}
-	}
+	
 }
 
 void Renderer::DoRender()
@@ -222,20 +198,10 @@ void Renderer::DoRender()
 		m_outPut->BeforeOutPot();
 	}
 	auto camera = m_camera;
-	auto origTarget = camera->position;
 	auto height = m_screenY;
 	auto width = m_screenX;
 	camera->SetRotate();
 	camera->SetViewPortMatrix(0, 0, width, height);
-	camera->LookAt(  m_light->direction);
-	camera->SetProjectionMatrix();
-	m_camera->Projection = m_camera->ProjectionOtho;
-	camera->M = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate;
-	DoShadow();
-	//camera->SetRotate();
-	camera->LookAt(origTarget);
-	//camera->SetViewPortMatrix(0, 0, width, height);
-	camera->SetProjectionMatrix();
 	DoDraw();
 
 	if (m_outPut != nullptr)
@@ -253,55 +219,50 @@ Renderer::Renderer(int screenX, int screenY)
 	m_shadowBuffer = std::make_shared<ZBuffer>(m_screenX, m_screenY);
 }
 
-void Renderer::DrawTriangle(vec4 vecs[3])
-{
-	DrawTriangle(vecs, m_shader ,m_zbuffer, m_outPut);
-}
-
 void Renderer::DrawTriangle(vec4 vecs[3], std::shared_ptr<IShader> shader, std::shared_ptr<ZBuffer> buffer, std::shared_ptr<IOutPutTarget> output)
 {
+	vec4 pts_screen[3] = {m_camera->Viewport * vecs[0],m_camera->Viewport * vecs[1], m_camera->Viewport * vecs[2]};
 	auto width = m_screenX;
 	auto height = m_screenY;
 	vec2 box_min(width - 1, height - 1);
 	vec2 box_max(0, 0);
 	auto z_buffer = buffer;
+	vec2 pts_perspective_division[3];
 
+	pts_perspective_division[0] = proj<2>(pts_screen[0] / pts_screen[0][3]);
+	pts_perspective_division[1] = proj<2>(pts_screen[1] / pts_screen[1][3]);
+	pts_perspective_division[2] = proj<2>(pts_screen[2] / pts_screen[2][3]);
 
 	for (int i = 0; i < 3; i++)
 	{
-		box_min.x = std::min(box_min.x, vecs[i][0]/ vecs[i][3]);
-		box_min.y = std::min(box_min.y, vecs[i][1] / vecs[i][3]);
+		box_min.x = std::min(box_min.x, pts_perspective_division[i][0]);
+		box_min.y = std::min(box_min.y, pts_perspective_division[i][1]);
 
-		box_max.x = std::max(box_max.x, vecs[i][0] / vecs[i][3]);
-		box_max.y = std::max(box_max.y, vecs[i][1] / vecs[i][3]);
+		box_max.x = std::max(box_max.x, pts_perspective_division[i][0]);
+		box_max.y = std::max(box_max.y, pts_perspective_division[i][1]);
 	}
 	vec2 p;
 	box_min.x = std::max(box_min.x, static_cast<double>(0));
 	box_min.y = std::max(box_min.y, static_cast<double>(0));
 	box_max.x = std::min(box_max.x, static_cast<double>(width - 1));
 	box_max.y = std::min(box_max.y, static_cast<double>(height - 1));
-	vec2 vec2array[3];
-	for (p.x = (int)box_min.x; p.x <= (int)box_max.x; p.x++)
+
+	TGAColor color;
+	for (p.x = static_cast<int>(box_min.x); p.x <= static_cast<int>(box_max.x); p.x++)
 	{
-		for (p.y = (int)box_min.y; p.y <= (int)box_max.y; p.y++)
+		for (p.y = static_cast<int>(box_min.y); p.y <= static_cast<int>(box_max.y); p.y++)
 		{
-			vec2array[0] = proj<2>(vecs[0] / vecs[0][3]);
-			vec2array[1] = proj<2>(vecs[1] / vecs[1][3]);
-			vec2array[2] = proj<2>(vecs[2] / vecs[2][3]);
-			auto res = barycentric(vec2array, p);
-			if (res.x < 0 || res.y < 0 || res.z < 0) continue;
-			double z = 0;
-			double w = 0;
-			for (int i = 0; i < 3; i++)
-			{
-				z += vecs[i][2] * res[i];
-				w += vecs[i][3] * res[i];
-			}
-			auto depth = z / w;
+			auto bc_screen = barycentric(pts_perspective_division, p);
+			if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0) continue;
+
+			auto bc_screen_revised = vec3(bc_screen[0] / pts_screen[0][3], bc_screen[1] / pts_screen[1][3],
+			                    bc_screen[2] / pts_screen[2][3]);
+			bc_screen_revised = bc_screen_revised / (bc_screen_revised.x + bc_screen_revised.y + bc_screen_revised.z);
+			auto depth = vec3(vecs[0][2], vecs[1][2], vecs[2][2]) * bc_screen_revised;
+
 			if(z_buffer->GetDepth(p.x,p.y) < depth)
 			{
-				TGAColor color;
-				if(!shader->fragment(res, color))
+				if(!shader->fragment(bc_screen_revised, color))
 				{
 					z_buffer->SetDepth(p.x, p.y, depth);
 					if(output != nullptr)
@@ -316,16 +277,20 @@ void Renderer::DrawTriangle(vec4 vecs[3], std::shared_ptr<IShader> shader, std::
 
 void Renderer::DoDraw()
 {
-	m_shader->update();
-	for (int i = 0; i < m_model->nfaces(); i++)
+	for (auto shader : m_shaderList)
 	{
-		vec4 clip_vert[3];
-		for (int j = 0; j < 3; j++)
+		shader->update();
+		for (int i = 0; i < m_model->nfaces(); i++)
 		{
-			m_shader->vertex(i, j, clip_vert[j]);
+			vec4 clip_vert[3];
+			for (int j = 0; j < 3; j++)
+			{
+				shader->vertex(i, j, clip_vert[j]);
+			}
+			DrawTriangle(clip_vert, shader ,m_curBuffer, m_useOutPut? m_outPut:nullptr);
 		}
-		DrawTriangle(clip_vert);
 	}
+	
 }
 
 
@@ -362,18 +327,21 @@ void IShader::vertex(const int faceIndex, const int vertIndex, vec4& position)
 	auto res = m_model->vert(faceIndex, vertIndex);
 	world[vertIndex] = res;
 	position = embed<4>(res);
-	position = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate * position;
+	position = /*m_camera->Viewport **/ m_camera->Projection * m_camera->ModelView * m_camera->Rotate * position;
 
 	varying_uv.set_col(vertIndex, m_model->uv(faceIndex, vertIndex));
-	varying_tri.set_col(vertIndex,proj<3>(position/position[3]));
+	auto subPos = m_camera->Viewport * position;
+	varying_tri.set_col(vertIndex,proj<3>(subPos/subPos[3]));
 }
 
 void IShader::update()
 {
+	m_camera->LookAt(m_camera->position);
+	m_camera->SetProjectionMatrix();
+	m_render->m_curBuffer = m_render->m_zbuffer;
+	m_render->m_useOutPut = true;
 	this->uniform_M = m_camera->Projection * m_camera->ModelView;
 	this->uniform_MIT = uniform_M.invert_transpose();
-	auto m = m_camera->Viewport * m_camera->Projection * m_camera->ModelView * m_camera->Rotate;
-	this->uniform_MShadow = m_camera->M * m.invert();
 }
 
 void IShader::AddModel(std::shared_ptr<Model> model)
